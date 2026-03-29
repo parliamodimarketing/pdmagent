@@ -599,14 +599,13 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function apriCanva(tipo, prefix) {
-  const tipoMap = {
-    instagram_post: 'InstagramPost',
-    your_story: 'InstagramStory',
-    linkedin_post: 'LinkedinPost',
-    facebook_post: 'LinkedinPost'
+  const urlMap = {
+    instagram_post: 'https://www.canva.com/create/instagram-posts/',
+    your_story:     'https://www.canva.com/create/instagram-stories/',
+    linkedin_post:  'https://www.canva.com/create/linkedin-posts/',
+    facebook_post:  'https://www.canva.com/create/linkedin-posts/'
   };
-  const canvaTipo = tipoMap[tipo] || 'InstagramPost';
-  const url = `https://www.canva.com/design/new?type=${canvaTipo}&brandKitId=${BRAND_KIT_ID}`;
+  const url = urlMap[tipo] || 'https://www.canva.com/create/instagram-posts/';
   window.open(url, '_blank');
 }
 
