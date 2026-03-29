@@ -599,7 +599,14 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function apriCanva(tipo, prefix) {
-  const url = `https://www.canva.com/design?create&type=${tipo}&brandKitId=${BRAND_KIT_ID}`;
+  const tipoMap = {
+    instagram_post: 'InstagramPost',
+    your_story: 'InstagramStory',
+    linkedin_post: 'LinkedinPost',
+    facebook_post: 'LinkedinPost'
+  };
+  const canvaTipo = tipoMap[tipo] || 'InstagramPost';
+  const url = `https://www.canva.com/design/new?type=${canvaTipo}&brandKitId=${BRAND_KIT_ID}`;
   window.open(url, '_blank');
 }
 
