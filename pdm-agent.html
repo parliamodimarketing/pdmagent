@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDM Agent</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --nero: #0f0f0f;
+    --bianco: #f5f2ec;
+    --oro: #c8a96e;
+    --oro-chiaro: #e8d5b0;
+    --grigio: #6b6560;
+    --grigio-chiaro: #e8e4dc;
+    --rosso: #c0392b;
+    --verde: #2ecc71;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--nero);
+    color: var(--bianco);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #2a2a2a;
+    padding-bottom: 1.5rem;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--oro);
+    letter-spacing: 0.02em;
+  }
+
+  header span {
+    font-size: 0.75rem;
+    color: var(--grigio);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 1.5rem;
+    max-width: 1100px;
+  }
+
+  .panel {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+
+  .panel-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--oro);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .panel-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #2a2a2a;
+  }
+
+  textarea {
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 3px;
+    color: var(--bianco);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 1rem;
+    resize: vertical;
+    min-height: 420px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus { border-color: var(--oro); }
+
+  .script-hint {
+    font-size: 0.72rem;
+    color: var(--grigio);
+    margin-top: 0.6rem;
+    line-height: 1.5;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+  }
+
+  .btn {
+    background: transparent;
+    border: 1px solid #3a3a3a;
+    border-radius: 3px;
+    color: var(--bianco);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .btn:hover {
+    border-color: var(--oro);
+    background: #1e1c18;
+  }
+
+  .btn.active {
+    border-color: var(--oro);
+    background: #1e1c18;
+  }
+
+  .btn-label {
+    font-size: 0.65rem;
+    color: var(--oro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .btn-full {
+    grid-column: 1 / -1;
+    background: var(--oro);
+    border-color: var(--oro);
+    color: var(--nero);
+    font-weight: 500;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 0.9rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 0.4rem;
+  }
+
+  .btn-full:hover {
+    background: var(--oro-chiaro);
+    border-color: var(--oro-chiaro);
+  }
+
+  .btn-full:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .output-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .output-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #2a2a2a;
+    margin-bottom: 1.2rem;
+  }
+
+  .tab {
+    background: transparent;
+    border: none;
+    color: var(--grigio);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 0.6rem 1rem;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .tab:hover { color: var(--bianco); }
+
+  .tab.active {
+    color: var(--oro);
+    border-bottom-color: var(--oro);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .output-box {
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 3px;
+    padding: 1.2rem;
+    min-height: 320px;
+    position: relative;
+  }
+
+  .output-text {
+    color: var(--bianco);
+    font-size: 0.84rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    font-weight: 300;
+  }
+
+  .output-placeholder {
+    color: var(--grigio);
+    font-size: 0.8rem;
+    font-style: italic;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 80%;
+  }
+
+  .loading-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--oro);
+    width: 0%;
+    transition: width 0.3s;
+    border-radius: 3px 3px 0 0;
+  }
+
+  .output-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+  }
+
+  .btn-copy {
+    background: transparent;
+    border: 1px solid #3a3a3a;
+    border-radius: 3px;
+    color: var(--grigio);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    padding: 0.4rem 0.8rem;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .btn-copy:hover {
+    border-color: var(--oro);
+    color: var(--oro);
+  }
+
+  .btn-copy.copied {
+    border-color: var(--verde);
+    color: var(--verde);
+  }
+
+  .variant-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .variant-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3a3a3a;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .variant-dot.active { background: var(--oro); }
+
+  .variant-label {
+    font-size: 0.68rem;
+    color: var(--grigio);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-left: auto;
+  }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.7rem;
+    color: var(--grigio);
+    letter-spacing: 0.05em;
+  }
+
+  .status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--grigio);
+  }
+
+  .status-dot.generating {
+    background: var(--oro);
+    animation: pulse 1s infinite;
+  }
+
+  .status-dot.done { background: var(--verde); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .error-msg {
+    color: var(--rosso);
+    font-size: 0.78rem;
+    padding: 0.8rem;
+    background: rgba(192, 57, 43, 0.08);
+    border: 1px solid rgba(192, 57, 43, 0.2);
+    border-radius: 3px;
+    margin-top: 0.8rem;
+  }
+
+  .canva-bar {
+    display: none;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid #2a2a2a;
+    flex-wrap: wrap;
+  }
+
+  .canva-bar.visible { display: flex; }
+
+  .btn-canva {
+    background: transparent;
+    border: 1px solid #7b5ea7;
+    border-radius: 3px;
+    color: #b08fd4;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.45rem 0.9rem;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .btn-canva:hover {
+    background: rgba(123, 94, 167, 0.15);
+    border-color: #b08fd4;
+    color: #d4b8f0;
+  }
+
+  .btn-canva:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .canva-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7b5ea7;
+  }
+
+  .canva-label {
+    font-size: 0.65rem;
+    color: #7b5ea7;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-right: 0.3rem;
+  }
+
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    body { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PDM Agent</h1>
+  <span>Parliamo di Marketing — Studio di produzione</span>
+</header>
+
+<div class="layout">
+
+  <!-- PANNELLO SINISTRO: script -->
+  <div class="panel">
+    <div class="panel-title">API Key <span style="color:var(--grigio);font-size:0.65rem;letter-spacing:0.05em;text-transform:none;font-weight:300">— salvata solo nel tuo browser</span></div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1.2rem">
+      <input type="password" id="apikey" placeholder="sk-ant-..." style="flex:1;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:3px;color:var(--bianco);font-family:'DM Sans',sans-serif;font-size:0.82rem;padding:0.6rem 0.8rem;outline:none;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--oro)'" onblur="this.style.borderColor='#2a2a2a'">
+      <button onclick="salvaKey()" style="background:transparent;border:1px solid var(--oro);border-radius:3px;color:var(--oro);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.72rem;letter-spacing:0.06em;padding:0.6rem 1rem;text-transform:uppercase;white-space:nowrap;transition:all 0.2s" onmouseover="this.style.background='#1e1c18'" onmouseout="this.style.background='transparent'">Salva</button>
+    </div>
+    <div id="key-status" style="font-size:0.7rem;color:var(--grigio);margin-top:-0.8rem;margin-bottom:1rem"></div>
+
+    <div class="panel-title">Script approvato</div>
+    <textarea id="script" placeholder="Incolla qui lo script dell'episodio..."></textarea>
+    <div class="script-hint">Incolla lo script completo. L'agente leggerà hook, casi, analisi e OMT per calibrare ogni formato.</div>
+
+    <div class="panel-title" style="margin-top:1.2rem">Link della settimana <span style="color:var(--grigio);font-size:0.65rem;letter-spacing:0.05em;text-transform:none;font-weight:300">— per la newsletter (opzionale)</span></div>
+    <textarea id="links" placeholder="Incolla 2-3 URL interessanti, uno per riga.&#10;L'agente li legge e li integra nella newsletter." style="min-height:90px;resize:vertical"></textarea>
+    <div class="script-hint">Newsletter Alert, Google Alert, articoli della settimana — l'agente li commenta in voce PDM.</div>
+
+    <div class="actions">
+      <button class="btn" onclick="setFormat('linkedin')" id="btn-linkedin">
+        <span class="btn-label">LinkedIn</span>
+        3 varianti · tono analitico
+      </button>
+      <button class="btn" onclick="setFormat('instagram')" id="btn-instagram">
+        <span class="btn-label">Instagram</span>
+        3 varianti · hook + caption
+      </button>
+      <button class="btn" onclick="setFormat('newsletter')" id="btn-newsletter">
+        <span class="btn-label">Newsletter</span>
+        formato ibrido PDM
+      </button>
+      <button class="btn" onclick="setFormat('tutti')" id="btn-tutti">
+        <span class="btn-label">Tutto insieme</span>
+        genera tutti i formati
+      </button>
+      <button class="btn-full btn" onclick="genera()" id="btn-genera" disabled>
+        Genera
+      </button>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Seleziona un formato e premi Genera</span>
+    </div>
+  </div>
+
+  <!-- PANNELLO DESTRO: output -->
+  <div class="panel output-panel">
+    <div class="panel-title">Output</div>
+
+    <div class="output-tabs" id="output-tabs">
+      <button class="tab active" data-tab="linkedin" onclick="switchTab('linkedin')">LinkedIn</button>
+      <button class="tab" data-tab="instagram" onclick="switchTab('instagram')">Instagram</button>
+      <button class="tab" data-tab="newsletter" onclick="switchTab('newsletter')">Newsletter</button>
+    </div>
+
+    <!-- LinkedIn -->
+    <div class="tab-content active" id="tab-linkedin">
+      <div class="variant-nav" id="ln-nav" style="display:none">
+        <div class="variant-dot active" onclick="showVariant('ln',0)" id="ln-dot-0"></div>
+        <div class="variant-dot" onclick="showVariant('ln',1)" id="ln-dot-1"></div>
+        <div class="variant-dot" onclick="showVariant('ln',2)" id="ln-dot-2"></div>
+        <span class="variant-label" id="ln-label">Variante 1 / 3</span>
+      </div>
+      <div class="output-box">
+        <div class="loading-bar" id="ln-bar"></div>
+        <div class="output-text" id="ln-output-0" style="display:none"></div>
+        <div class="output-text" id="ln-output-1" style="display:none"></div>
+        <div class="output-text" id="ln-output-2" style="display:none"></div>
+        <div class="output-placeholder" id="ln-placeholder">Il contenuto LinkedIn apparirà qui</div>
+      </div>
+      <div class="output-actions">
+        <button class="btn-copy" onclick="copyOutput('ln')">Copia</button>
+      </div>
+      <div class="canva-bar" id="canva-bar-ln">
+        <span class="canva-label">Crea su Canva</span>
+        <button class="btn-canva" onclick="apriCanva('instagram_post', 'ln')">
+          <span class="canva-dot"></span>Post Instagram
+        </button>
+        <button class="btn-canva" onclick="apriCanva('your_story', 'ln')">
+          <span class="canva-dot"></span>Story
+        </button>
+        <button class="btn-canva" onclick="apriCanva('linkedin_post', 'ln')">
+          <span class="canva-dot"></span>LinkedIn visual
+        </button>
+      </div>
+    </div>
+
+    <!-- Instagram -->
+    <div class="tab-content" id="tab-instagram">
+      <div class="variant-nav" id="ig-nav" style="display:none">
+        <div class="variant-dot active" onclick="showVariant('ig',0)" id="ig-dot-0"></div>
+        <div class="variant-dot" onclick="showVariant('ig',1)" id="ig-dot-1"></div>
+        <div class="variant-dot" onclick="showVariant('ig',2)" id="ig-dot-2"></div>
+        <span class="variant-label" id="ig-label">Variante 1 / 3</span>
+      </div>
+      <div class="output-box">
+        <div class="loading-bar" id="ig-bar"></div>
+        <div class="output-text" id="ig-output-0" style="display:none"></div>
+        <div class="output-text" id="ig-output-1" style="display:none"></div>
+        <div class="output-text" id="ig-output-2" style="display:none"></div>
+        <div class="output-placeholder" id="ig-placeholder">Il contenuto Instagram apparirà qui</div>
+      </div>
+      <div class="output-actions">
+        <button class="btn-copy" onclick="copyOutput('ig')">Copia</button>
+      </div>
+      <div class="canva-bar" id="canva-bar-ig">
+        <span class="canva-label">Crea su Canva</span>
+        <button class="btn-canva" onclick="apriCanva('instagram_post', 'ig')">
+          <span class="canva-dot"></span>Post Instagram
+        </button>
+        <button class="btn-canva" onclick="apriCanva('your_story', 'ig')">
+          <span class="canva-dot"></span>Story
+        </button>
+      </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="tab-content" id="tab-newsletter">
+      <div class="output-box">
+        <div class="loading-bar" id="nl-bar"></div>
+        <div class="output-text" id="nl-output" style="display:none"></div>
+        <div class="output-placeholder" id="nl-placeholder">La newsletter apparirà qui</div>
+      </div>
+      <div class="output-actions">
+        <button class="btn-copy" onclick="copyOutput('nl')">Copia</button>
+      </div>
+      <div class="canva-bar" id="canva-bar-nl">
+        <span class="canva-label">Crea su Canva</span>
+        <button class="btn-canva" onclick="apriCanva('your_story', 'nl')">
+          <span class="canva-dot"></span>Story newsletter
+        </button>
+        <button class="btn-canva" onclick="apriCanva('instagram_post', 'nl')">
+          <span class="canva-dot"></span>Promo post
+        </button>
+      </div>
+    </div>
+
+    <div id="error-container"></div>
+  </div>
+
+</div>
+
+<script>
+let selectedFormat = null;
+let currentVariants = { ln: 0, ig: 0 };
+let outputs = { ln: ['','',''], ig: ['','',''], nl: '' };
+
+const BRAND_KIT_ID = 'kAEWy3u-m-o';
+
+function salvaKey() {
+  const key = document.getElementById('apikey').value.trim();
+  if (!key.startsWith('sk-ant-')) {
+    document.getElementById('key-status').textContent = 'Formato non valido — deve iniziare con sk-ant-';
+    document.getElementById('key-status').style.color = 'var(--rosso)';
+    return;
+  }
+  localStorage.setItem('pdm_api_key', key);
+  document.getElementById('key-status').textContent = 'Key salvata nel browser ✓';
+  document.getElementById('key-status').style.color = 'var(--verde)';
+  document.getElementById('apikey').value = '••••••••••••••••••••';
+}
+
+function getKey() {
+  return localStorage.getItem('pdm_api_key') || '';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('pdm_api_key');
+  if (saved) {
+    document.getElementById('apikey').value = '••••••••••••••••••••';
+    document.getElementById('key-status').textContent = 'Key salvata nel browser ✓';
+    document.getElementById('key-status').style.color = 'var(--verde)';
+  }
+});
+
+function apriCanva(tipo, prefix) {
+  const url = `https://www.canva.com/design?create&type=${tipo}&brandKitId=${BRAND_KIT_ID}`;
+  window.open(url, '_blank');
+}
+
+function mostraBarraCanva(prefix) {
+  const map = { ln: 'canva-bar-ln', ig: 'canva-bar-ig', nl: 'canva-bar-nl' };
+  const bar = document.getElementById(map[prefix]);
+  if (bar) bar.classList.add('visible');
+}
+
+const SYSTEM_PDM = `Sei l'assistente di produzione del podcast italiano "Parliamo di Marketing" (PDM), condotto da Babi, professoressa di marketing e consulente.
+
+VOCE E STILE DI BABI:
+- Tono caldo, diretto, colloquiale ma autorevole
+- Usa esempi concreti, non astrazioni
+- Mai linguaggio da AI: no "nel mondo frenetico di oggi", no "è fondamentale che", no anglicismi inutili
+- Frasi brevi. Ritmo sincopato. Pause semantiche.
+- Prima persona quando parla di esperienze dirette
+- Il pubblico è fatto di professionisti, marketer, imprenditori italiani
+
+FORMATO PDM: Hook provocatorio → Caso 1 → Caso 2 → Analisi → One More Thing memorabile`;
+
+function setFormat(f) {
+  selectedFormat = f;
+  document.querySelectorAll('.btn[id^="btn-"]').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('btn-' + f);
+  if (btn) btn.classList.add('active');
+  document.getElementById('btn-genera').disabled = false;
+  setStatus('idle', 'Pronto. Premi Genera.');
+}
+
+function setStatus(type, msg) {
+  const dot = document.getElementById('status-dot');
+  const text = document.getElementById('status-text');
+  dot.className = 'status-dot' + (type === 'generating' ? ' generating' : type === 'done' ? ' done' : '');
+  text.textContent = msg;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function showVariant(prefix, idx) {
+  currentVariants[prefix] = idx;
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById(`${prefix}-output-${i}`);
+    const dot = document.getElementById(`${prefix}-dot-${i}`);
+    if (el) el.style.display = i === idx ? 'block' : 'none';
+    if (dot) dot.className = 'variant-dot' + (i === idx ? ' active' : '');
+  }
+  const label = prefix === 'ln' ? 'ln-label' : 'ig-label';
+  document.getElementById(label).textContent = `Variante ${idx + 1} / 3`;
+}
+
+function copyOutput(prefix) {
+  let text = '';
+  if (prefix === 'nl') {
+    text = outputs.nl;
+  } else {
+    const idx = currentVariants[prefix];
+    text = outputs[prefix === 'ln' ? 'ln' : 'ig'][idx];
+  }
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copiato';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copia'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function showError(msg) {
+  document.getElementById('error-container').innerHTML = `<div class="error-msg">${msg}</div>`;
+}
+
+function clearError() {
+  document.getElementById('error-container').innerHTML = '';
+}
+
+async function callClaude(prompt, onChunk) {
+  const key = getKey();
+  if (!key) {
+    throw new Error('Inserisci la tua API key in cima al pannello e clicca Salva.');
+  }
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      stream: true,
+      system: SYSTEM_PDM,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!response.ok) throw new Error(`Errore API: ${response.status}`);
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = line.slice(6);
+        if (data === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+            onChunk(parsed.delta.text);
+          }
+        } catch {}
+      }
+    }
+  }
+}
+
+async function genera() {
+  const script = document.getElementById('script').value.trim();
+  if (!script) { showError('Incolla lo script prima di generare.'); return; }
+  if (!selectedFormat) { showError('Seleziona un formato.'); return; }
+
+  clearError();
+  document.getElementById('btn-genera').disabled = true;
+  setStatus('generating', 'Generazione in corso...');
+
+  const formati = selectedFormat === 'tutti'
+    ? ['linkedin', 'instagram', 'newsletter']
+    : [selectedFormat];
+
+  for (const formato of formati) {
+    await generaFormato(formato, script);
+  }
+
+  setStatus('done', 'Generazione completata.');
+  document.getElementById('btn-genera').disabled = false;
+}
+
+async function generaFormato(formato, script) {
+  if (formato === 'linkedin') {
+    switchTab('linkedin');
+    const prefix = 'ln';
+    const bar = document.getElementById('ln-bar');
+    const placeholder = document.getElementById('ln-placeholder');
+    placeholder.style.display = 'none';
+    document.getElementById('ln-nav').style.display = 'flex';
+    outputs.ln = ['', '', ''];
+
+    const angoli = [
+      'angolo analitico-professionale: parte dal dato o dalla tensione concettuale, sviluppa la lezione di marketing, chiude con una domanda che invita alla riflessione. Tono da esperta, non da divulgatrice.',
+      'angolo narrativo-personale: Babi racconta in prima persona, usa "io" e il vissuto diretto, porta il lettore dentro la scena. Tono intimo ma con sostanza.',
+      'angolo provocatorio: apre con una tesi controcorrente o scomoda, la sviluppa con i casi, chiude con un invito all\'ascolto. Tono diretto, quasi polemico.'
+    ];
+
+    for (let i = 0; i < 3; i++) {
+      const el = document.getElementById(`ln-output-${i}`);
+      el.style.display = i === 0 ? 'block' : 'none';
+      el.textContent = '';
+      outputs.ln[i] = '';
+
+      bar.style.width = `${(i / 3) * 100}%`;
+
+      const prompt = `Dall'episodio PDM qui sotto, scrivi UN post LinkedIn con questo ${angoli[i]}
+
+REGOLE FORMATO LINKEDIN:
+- Massimo 1800 caratteri
+- Prima riga: hook fulminante (non iniziare mai con "Oggi" o "Ho scoperto che")
+- Niente emoji in eccesso, al massimo 2-3 strategiche
+- Hashtag alla fine: 4-5 rilevanti per marketing italiano
+- Nessuna call to action generica tipo "cosa ne pensi?"
+- Firma implicita nella voce — non scrivere "Babi" o "PDM" nel testo
+
+SCRIPT EPISODIO:
+${script}
+
+Scrivi solo il post, nient'altro.`;
+
+      try {
+        await callClaude(prompt, (chunk) => {
+          outputs.ln[i] += chunk;
+          el.textContent = outputs.ln[i];
+        });
+      } catch(e) { showError('Errore LinkedIn variante ' + (i+1) + ': ' + e.message); }
+    }
+    bar.style.width = '100%';
+    showVariant('ln', 0);
+    mostraBarraCanva('ln');
+
+  } else if (formato === 'instagram') {
+    switchTab('instagram');
+    const prefix = 'ig';
+    const bar = document.getElementById('ig-bar');
+    const placeholder = document.getElementById('ig-placeholder');
+    placeholder.style.display = 'none';
+    document.getElementById('ig-nav').style.display = 'flex';
+    outputs.ig = ['', '', ''];
+
+    const stili = [
+      'stile carrousel testuale: prima riga = hook visivo forte (max 8 parole, deve funzionare come slide 1), poi 3-4 punti chiave dell\'episodio come micro-frasi da slide, chiudi con CTA all\'ascolto.',
+      'stile caption narrativa: racconta il momento del pacco di Rachele come se fosse un reel in testa, poi collega alla lezione, chiudi con una domanda alla community.',
+      'stile aforisma espanso: apri con la frase chiave dell\'episodio ("Rachele non è un costo. Rachele è il brand."), espandila in 4-5 righe di contesto, chiudi con rimando al podcast.'
+    ];
+
+    for (let i = 0; i < 3; i++) {
+      const el = document.getElementById(`ig-output-${i}`);
+      el.style.display = i === 0 ? 'block' : 'none';
+      el.textContent = '';
+      outputs.ig[i] = '';
+
+      bar.style.width = `${(i / 3) * 100}%`;
+
+      const prompt = `Dall'episodio PDM qui sotto, scrivi UNA caption Instagram con questo ${stili[i]}
+
+REGOLE FORMATO INSTAGRAM:
+- Massimo 150 parole per la caption
+- Emoji usate con criterio: max 4-5, solo dove aggiungono ritmo
+- Hashtag: 8-10, mix di generici marketing + specifici italiani, alla fine separati
+- Tono di Babi: caldo, diretto, mai cattedratico
+- La prima riga deve reggere da sola (viene troncata nel feed)
+
+SCRIPT EPISODIO:
+${script}
+
+Scrivi solo la caption completa di hashtag, nient'altro.`;
+
+      try {
+        await callClaude(prompt, (chunk) => {
+          outputs.ig[i] += chunk;
+          el.textContent = outputs.ig[i];
+        });
+      } catch(e) { showError('Errore Instagram variante ' + (i+1) + ': ' + e.message); }
+    }
+    bar.style.width = '100%';
+    showVariant('ig', 0);
+    mostraBarraCanva('ig');
+
+  } else if (formato === 'newsletter') {
+    switchTab('newsletter');
+    const bar = document.getElementById('nl-bar');
+    const placeholder = document.getElementById('nl-placeholder');
+    const el = document.getElementById('nl-output');
+    placeholder.style.display = 'none';
+    el.style.display = 'block';
+    el.textContent = '';
+    outputs.nl = '';
+    bar.style.width = '20%';
+
+    const linksRaw = document.getElementById('links').value.trim();
+    const linksList = linksRaw
+      ? linksRaw.split('\n').map(l => l.trim()).filter(l => l.startsWith('http')).slice(0, 3)
+      : [];
+
+    let linksContext = '';
+    if (linksList.length > 0) {
+      setStatus('generating', 'Leggo i link della settimana...');
+      bar.style.width = '35%';
+
+      for (const url of linksList) {
+        try {
+          const fetchRes = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 200,
+              messages: [{
+                role: 'user',
+                content: `Descrivi in massimo 2 righe cosa tratta questo articolo o link di marketing, in italiano, tono neutro e informativo. URL: ${url}. Se non riesci ad accedervi, descrivi cosa suggerisce l'URL stesso. Rispondi solo con la descrizione, senza citare l'URL.`
+              }]
+            })
+          });
+          const data = await fetchRes.json();
+          const desc = data.content?.[0]?.text || 'Contenuto non accessibile.';
+          linksContext += `- ${url}\n  ${desc}\n`;
+        } catch {
+          linksContext += `- ${url}\n  (link non accessibile)\n`;
+        }
+      }
+    }
+
+    bar.style.width = '50%';
+    setStatus('generating', 'Scrivo la newsletter...');
+
+    const sezioneLink = linksList.length > 0
+      ? `7. DALLA RETE QUESTA SETTIMANA: per ogni link fornito, scrivi una riga di titolo descrittivo (non il titolo originale, riscrivilo in voce PDM) + una riga di commento personale di Babi che spiega perché lo ha trovato interessante + il link originale. Max 3 link. Tono: "l'ho letto e mi ha colpito perché..." — non una rassegna fredda, una segnalazione tra colleghi.`
+      : '';
+
+    const linksInfo = linksList.length > 0
+      ? `\n\nLINK DELLA SETTIMANA (già analizzati):\n${linksContext}`
+      : '';
+
+    const prompt = `Dall'episodio PDM qui sotto, scrivi la newsletter ibrida di Parliamo di Marketing.
+
+STRUTTURA NEWSLETTER PDM:
+
+1. OGGETTO EMAIL: una riga, max 50 caratteri, deve incuriosire senza spoilerare
+2. PREHEADER: una riga breve che completa l'oggetto
+3. INTRO PERSONALE (100-120 parole): Babi scrive in prima persona, racconta cosa l'ha colpita questa settimana. Tono diaristico ma con una freccia verso la lezione. Deve sembrare scritta a mano, non prodotta.
+4. EPISODIO DELLA SETTIMANA: titolo dell'episodio + 2-3 righe di teaser che NON svelano la conclusione. Invita all'ascolto.
+5. LA LEZIONE IN UNA RIGA: una frase sola, memorabile, stile aforisma.
+6. CTA: una riga semplice con link placeholder [LINK EPISODIO]
+${sezioneLink}
+
+REGOLE GENERALI:
+- Tono caldo, personale, mai istituzionale
+- Mai "questa settimana vi porto", mai "è fondamentale"
+- Max 450 parole totali
+- Niente emoji
+
+SCRIPT EPISODIO:
+${script}${linksInfo}
+
+Scrivi la newsletter completa con le sezioni numerate, nient'altro.`;
+
+    try {
+      await callClaude(prompt, (chunk) => {
+        outputs.nl += chunk;
+        el.textContent = outputs.nl;
+      });
+    } catch(e) { showError('Errore newsletter: ' + e.message); }
+
+    bar.style.width = '100%';
+    mostraBarraCanva('nl');
+  }
+}
+</script>
+</body>
+</html>
