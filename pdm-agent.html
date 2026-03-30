@@ -17,10 +17,10 @@ header span{font-size:.75rem;color:var(--grigio);letter-spacing:.1em;text-transf
 .pt{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--oro);margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem;}
 .pt::after{content:'';flex:1;height:1px;background:#2a2a2a;}
 .pt span{color:var(--grigio);font-size:.65rem;text-transform:none;font-weight:300;}
-textarea,input[type=password]{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:3px;color:var(--bianco);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:300;line-height:1.7;padding:.75rem 1rem;outline:none;transition:border-color .2s;}
+textarea,input[type=password],input[type=text]{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:3px;color:var(--bianco);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:300;line-height:1.7;padding:.75rem 1rem;outline:none;transition:border-color .2s;}
 textarea{resize:vertical;}
-textarea:focus,input[type=password]:focus{border-color:var(--oro);}
-.hint{font-size:.72rem;color:var(--grigio);margin-top:.5rem;line-height:1.5;}
+textarea:focus,input:focus{border-color:var(--oro);}
+.hint{font-size:.72rem;color:var(--grigio);margin-top:.5rem;line-height:1.5;margin-bottom:.8rem;}
 .mt{margin-top:1.2rem;}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1.2rem;}
 .btn{background:transparent;border:1px solid #3a3a3a;border-radius:3px;color:var(--bianco);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:400;letter-spacing:.05em;padding:.75rem 1rem;text-align:left;transition:all .2s;display:flex;flex-direction:column;gap:.15rem;}
@@ -74,22 +74,25 @@ textarea:focus,input[type=password]:focus{border-color:var(--oro);}
     <div id="key-status" style="font-size:.7rem;color:var(--grigio);margin-top:-.8rem;margin-bottom:1rem"></div>
 
     <div class="pt">Script approvato</div>
-    <textarea id="script" placeholder="Incolla qui lo script dell'episodio..." style="min-height:180px"></textarea>
-    <div class="hint">Incolla lo script completo. L'agente legge hook, casi, analisi e OMT.</div>
+    <textarea id="script" placeholder="Incolla qui lo script dell'episodio..." style="min-height:160px"></textarea>
+
+    <div class="pt mt">Link Spotify episodio <span>— per il player nella newsletter</span></div>
+    <input type="text" id="spotify-url" placeholder="https://open.spotify.com/episode/...">
+    <div class="hint">Incolla il link Spotify dell'episodio. L'agente genera il blocco HTML del player.</div>
 
     <div class="pt mt">Link della settimana <span>— per la newsletter (opzionale)</span></div>
     <textarea id="links" placeholder="Incolla 2-3 URL interessanti, uno per riga." style="min-height:65px"></textarea>
 
     <div class="pt mt">Dati performance <span>— per l'analisi (opzionale)</span></div>
-    <textarea id="performance" placeholder="Incolla dati Spotify: ascolti, retention, follower, episodi più ascoltati..." style="min-height:65px"></textarea>
+    <textarea id="performance" placeholder="Incolla dati Spotify: ascolti, retention, follower..." style="min-height:65px"></textarea>
 
     <div class="actions">
       <button class="btn" onclick="setFmt('linkedin')" id="btn-linkedin"><span class="bl">LinkedIn</span>3 varianti</button>
       <button class="btn" onclick="setFmt('instagram')" id="btn-instagram"><span class="bl">Instagram</span>3 varianti</button>
       <button class="btn" onclick="setFmt('newsletter')" id="btn-newsletter"><span class="bl">Newsletter</span>formato ibrido PDM</button>
       <button class="btn" onclick="setFmt('podcast')" id="btn-podcast"><span class="bl">Podcast</span>Spotify + YouTube</button>
+      <button class="btn" onclick="setFmt('player')" id="btn-player"><span class="bl">Player HTML</span>blocco newsletter</button>
       <button class="btn" onclick="setFmt('analisi')" id="btn-analisi"><span class="bl">Analisi</span>performance + consigli</button>
-      <button class="btn" onclick="setFmt('tutti')" id="btn-tutti"><span class="bl">Tutto</span>genera tutti i formati</button>
       <button class="btn btn-gen" onclick="genera()" id="btn-genera" disabled>Genera</button>
     </div>
     <div class="sb"><div class="sd" id="sd"></div><span id="st">Seleziona un formato e premi Genera</span></div>
@@ -102,6 +105,7 @@ textarea:focus,input[type=password]:focus{border-color:var(--oro);}
       <button class="tab" data-tab="instagram" onclick="swTab('instagram')">Instagram</button>
       <button class="tab" data-tab="newsletter" onclick="swTab('newsletter')">Newsletter</button>
       <button class="tab" data-tab="podcast" onclick="swTab('podcast')">Podcast</button>
+      <button class="tab" data-tab="player" onclick="swTab('player')">Player HTML</button>
       <button class="tab" data-tab="analisi" onclick="swTab('analisi')">Analisi</button>
     </div>
 
@@ -157,6 +161,15 @@ textarea:focus,input[type=password]:focus{border-color:var(--oro);}
       <div class="oa"><button class="bc" onclick="cp('pc')">Copia</button></div>
     </div>
 
+    <div class="tc" id="tab-player">
+      <div class="ob">
+        <div class="lb" id="pl-bar"></div>
+        <div class="ot" id="pl-out" style="display:none"></div>
+        <div class="op" id="pl-ph">Il blocco HTML del player Spotify apparirà qui — copialo e incollalo in Substack o nel sito</div>
+      </div>
+      <div class="oa"><button class="bc" onclick="cp('pl')">Copia HTML</button></div>
+    </div>
+
     <div class="tc" id="tab-analisi">
       <div class="ob">
         <div class="lb" id="an-bar"></div>
@@ -171,7 +184,7 @@ textarea:focus,input[type=password]:focus{border-color:var(--oro);}
 </div>
 
 <script>
-let fmt=null, cv={ln:0,ig:0}, out={ln:['','',''],ig:['','',''],nl:'',pc:'',an:''};
+let fmt=null, cv={ln:0,ig:0}, out={ln:['','',''],ig:['','',''],nl:'',pc:'',pl:'',an:''};
 
 function salvaKey(){
   const k=document.getElementById('apikey').value.trim();
@@ -218,19 +231,24 @@ function showV(p,i){
   document.getElementById(`${p}-lbl`).textContent=`Variante ${i+1}/3`;
 }
 function cp(p){
-  let t=p==='nl'?out.nl:p==='pc'?out.pc:p==='an'?out.an:out[p][cv[p]];
+  let t=p==='nl'?out.nl:p==='pc'?out.pc:p==='pl'?out.pl:p==='an'?out.an:out[p][cv[p]];
   if(!t)return;
   navigator.clipboard.writeText(t).then(()=>{
-    const b=event.target;b.textContent='Copiato';b.classList.add('cp');
-    setTimeout(()=>{b.textContent='Copia';b.classList.remove('cp');},2000);
+    const b=event.target;b.textContent='Copiato!';b.classList.add('cp');
+    setTimeout(()=>{b.textContent=p==='pl'?'Copia HTML':'Copia';b.classList.remove('cp');},2000);
   });
 }
 function showErr(m){document.getElementById('err').innerHTML=`<div class="em">${m}</div>`;}
 function clearErr(){document.getElementById('err').innerHTML='';}
 
+function estraiSpotifyId(url){
+  const m=url.match(/episode\/([a-zA-Z0-9]+)/);
+  return m?m[1]:null;
+}
+
 const SYS=`Sei l'assistente di produzione del podcast italiano "Parliamo di Marketing" (PDM), condotto da Babi (Barbara Lorenzini), professoressa di marketing e consulente.
-VOCE E STILE DI BABI: tono caldo, diretto, colloquiale ma autorevole. Esempi concreti. Mai "nel mondo frenetico di oggi" o "è fondamentale che". Frasi brevi. Ritmo sincopato. Prima persona per esperienze dirette. Pubblico: professionisti e imprenditori italiani 35-55 anni.
-FORMATO PDM: Hook provocatorio → Caso 1 → Caso 2 → Analisi → One More Thing memorabile. Durata 5-6 minuti. Pubblica lunedì 6:30. 150+ episodi.`;
+VOCE E STILE: tono caldo, diretto, colloquiale ma autorevole. Esempi concreti. Mai "nel mondo frenetico di oggi". Frasi brevi. Prima persona per esperienze dirette. Pubblico: professionisti italiani 35-55 anni.
+FORMATO PDM: Hook provocatorio → Caso 1 → Caso 2 → Analisi → One More Thing memorabile. 5-6 minuti. Lunedì 6:30. 150+ episodi.`;
 
 async function callC(prompt,onChunk){
   const k=getKey();
@@ -257,18 +275,19 @@ async function callC(prompt,onChunk){
 
 async function genera(){
   const sc=document.getElementById('script').value.trim();
-  if(!sc&&fmt!=='analisi'){showErr('Incolla lo script prima di generare.');return;}
+  if(!sc&&fmt!=='analisi'&&fmt!=='player'){showErr('Incolla lo script prima di generare.');return;}
   if(!fmt){showErr('Seleziona un formato.');return;}
   clearErr();
   document.getElementById('btn-genera').disabled=true;
   setSt('g','Generazione in corso...');
-  const ff=fmt==='tutti'?['linkedin','instagram','newsletter','podcast']:[fmt];
+  const ff=fmt==='tutti'?['linkedin','instagram','newsletter','podcast','player']:[fmt];
   for(const f of ff)await genF(f,sc);
   setSt('d','Completato.');
   document.getElementById('btn-genera').disabled=false;
 }
 
 async function genF(f,sc){
+
   if(f==='linkedin'){
     swTab('linkedin');
     const bar=document.getElementById('ln-bar');
@@ -285,7 +304,7 @@ async function genF(f,sc){
       el.style.display=i===0?'block':'none';el.textContent='';out.ln[i]='';
       bar.style.width=`${(i/3)*100}%`;
       const p=`Dall'episodio PDM sotto, scrivi UN post LinkedIn con questo ${ang[i]}
-REGOLE: max 1800 caratteri. Hook forte in prima riga (mai "Oggi" o "Ho scoperto"). Max 2-3 emoji. 4-5 hashtag marketing italiano alla fine. Nessuna CTA generica. Non scrivere "Babi" o "PDM".
+REGOLE: max 1800 car. Hook forte in prima riga (mai "Oggi"). Max 2-3 emoji. 4-5 hashtag marketing italiano. Nessuna CTA generica. Non scrivere "Babi" o "PDM".
 SCRIPT:\n${sc}\nSolo il post.`;
       try{await callC(p,c=>{out.ln[i]+=c;el.textContent=out.ln[i];});}
       catch(e){showErr(`Errore LinkedIn v${i+1}: ${e.message}`);}
@@ -308,7 +327,7 @@ SCRIPT:\n${sc}\nSolo il post.`;
       el.style.display=i===0?'block':'none';el.textContent='';out.ig[i]='';
       bar.style.width=`${(i/3)*100}%`;
       const p=`Dall'episodio PDM sotto, scrivi UNA caption Instagram con questo ${stili[i]}
-REGOLE: max 150 parole. Max 4-5 emoji. 8-10 hashtag alla fine. Prima riga regge da sola nel feed.
+REGOLE: max 150 parole. Max 5 emoji. 8-10 hashtag alla fine. Prima riga regge da sola.
 SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
       try{await callC(p,c=>{out.ig[i]+=c;el.textContent=out.ig[i];});}
       catch(e){showErr(`Errore Instagram v${i+1}: ${e.message}`);}
@@ -332,8 +351,11 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
         }catch{lCtx+=`- ${u}\n  (non accessibile)\n`;}
       }
     }
+    const spotUrl=document.getElementById('spotify-url').value.trim();
+    const spotId=estraiSpotifyId(spotUrl);
+    const spotNote=spotId?`\n\nNOTA: alla fine della newsletter aggiungi questa riga: "[INSERISCI QUI IL PLAYER SPOTIFY — usa il tab Player HTML per generare il codice]"`:'';
     bar.style.width='50%';setSt('g','Scrivo la newsletter...');
-    const secLink=links.length>0?`7. DALLA RETE QUESTA SETTIMANA: per ogni link: titolo in voce PDM + riga commento personale Babi + link originale.`:'';
+    const secLink=links.length>0?`7. DALLA RETE QUESTA SETTIMANA: per ogni link: titolo in voce PDM + riga commento Babi + link originale.`:'';
     const lInfo=links.length>0?`\n\nLINK:\n${lCtx}`:'';
     const p=`Dall'episodio PDM sotto, scrivi la newsletter ibrida PDM.
 STRUTTURA:
@@ -344,8 +366,8 @@ STRUTTURA:
 5. LEZIONE IN UNA RIGA: aforisma memorabile
 6. CTA: [LINK EPISODIO]
 ${secLink}
-REGOLE: tono caldo personale, mai istituzionale, max 450 parole, no emoji.
-SCRIPT:\n${sc}${lInfo}\nNewsletter completa con sezioni numerate.`;
+REGOLE: tono caldo personale, max 450 parole, no emoji.
+SCRIPT:\n${sc}${lInfo}${spotNote}\nNewsletter completa con sezioni numerate.`;
     try{await callC(p,c=>{out.nl+=c;el.textContent=out.nl;});}
     catch(e){showErr(`Errore newsletter: ${e.message}`);}
     bar.style.width='100%';
@@ -359,21 +381,85 @@ SCRIPT:\n${sc}${lInfo}\nNewsletter completa con sezioni numerate.`;
     const p=`Dall'episodio PDM sotto, genera:
 
 SPOTIFY / APPLE PODCAST
-Titolo: (max 60 car, SEO-ottimizzato per ricerca)
-Descrizione: (150-200 parole, prima frase = hook nell'anteprima, poi contesto e lezione, CTA ad ascoltare, no emoji)
+Titolo: (max 60 car, SEO-ottimizzato)
+Descrizione: (150-200 parole, prima frase = hook, poi contesto e lezione, CTA ad ascoltare, no emoji)
 
 ---
 
 YOUTUBE
-Titolo: (max 70 car, include keyword principale, formato Come/Perché/Cosa quando possibile)
-Descrizione: (200-250 parole, prima riga hook, poi descrizione episodio, chiudi con [LINK PODCAST])
+Titolo: (max 70 car, keyword principale, formato Come/Perché/Cosa)
+Descrizione: (200-250 parole, prima riga hook, poi episodio, chiudi con [LINK PODCAST])
 Tag: (10-15 tag separati da virgola, mix italiano e inglese)
 
-Voce di Babi, tono diretto, keyword marketing italiano.
-SCRIPT:\n${sc}\nSolo il testo richiesto.`;
+Voce Babi, tono diretto, keyword marketing italiano.
+SCRIPT:\n${sc}\nSolo il testo.`;
     try{await callC(p,c=>{out.pc+=c;el.textContent=out.pc;});}
     catch(e){showErr(`Errore podcast: ${e.message}`);}
     bar.style.width='100%';
+
+  }else if(f==='player'){
+    swTab('player');
+    const bar=document.getElementById('pl-bar'),el=document.getElementById('pl-out');
+    document.getElementById('pl-ph').style.display='none';
+    el.style.display='block';bar.style.width='50%';
+    setSt('g','Genero player HTML...');
+
+    const spotUrl=document.getElementById('spotify-url').value.trim();
+    const spotId=estraiSpotifyId(spotUrl);
+
+    if(!spotId){
+      el.textContent='';
+      out.pl='';
+      showErr('Inserisci il link Spotify dell\'episodio nel campo apposito.');
+      bar.style.width='0%';
+      setSt('idle','');
+      document.getElementById('btn-genera').disabled=false;
+      return;
+    }
+
+    const titoloEp=document.getElementById('script').value.trim().split('\n').find(r=>r.trim().length>10)||'Nuovo episodio PDM';
+
+    const playerHTML=`<!-- Player Spotify PDM — copia e incolla in Substack o WordPress -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:24px auto;">
+  <tr>
+    <td>
+      <a href="${spotUrl}" target="_blank" rel="noopener noreferrer" style="display:block;text-decoration:none;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0f0f0f;border-radius:12px;overflow:hidden;">
+          <tr>
+            <td style="padding:20px 24px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="56" valign="middle" style="padding-right:16px;">
+                    <div style="width:56px;height:56px;background:#1DB954;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.434-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.469-.077-.336.132-.67.469-.746 3.809-.871 7.077-.496 9.713 1.115.293.18.386.563.207.856zm1.223-2.722c-.226.367-.706.482-1.072.257-2.687-1.652-6.785-2.131-9.965-1.166-.413.127-.848-.106-.974-.517-.127-.412.105-.848.517-.974 3.632-1.102 8.147-.568 11.237 1.328.366.226.48.707.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71c-.493.15-1.016-.129-1.166-.623-.148-.495.13-1.016.624-1.166 3.532-1.073 9.404-.866 13.115 1.337.445.264.590.838.327 1.282-.262.445-.838.59-1.283.327z"/>
+                      </svg>
+                    </div>
+                  </td>
+                  <td valign="middle">
+                    <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:#1DB954;text-transform:uppercase;letter-spacing:1px;font-weight:bold;">Parliamo di Marketing</p>
+                    <p style="margin:4px 0 0;font-family:Arial,sans-serif;font-size:15px;color:#ffffff;font-weight:bold;line-height:1.3;">▶ Ascolta l'episodio</p>
+                  </td>
+                  <td valign="middle" align="right">
+                    <div style="background:#1DB954;border-radius:20px;padding:8px 16px;">
+                      <span style="font-family:Arial,sans-serif;font-size:13px;color:#000000;font-weight:bold;">Spotify</span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </a>
+    </td>
+  </tr>
+</table>
+<!-- Fine player Spotify PDM -->`;
+
+    out.pl=playerHTML;
+    el.textContent=playerHTML;
+    bar.style.width='100%';
+    setSt('d','Player HTML generato — clicca Copia HTML.');
 
   }else if(f==='analisi'){
     swTab('analisi');
@@ -384,15 +470,15 @@ SCRIPT:\n${sc}\nSolo il testo richiesto.`;
     const dati=document.getElementById('performance').value.trim();
     const scTesto=document.getElementById('script').value.trim();
     const p=`Sei un analista di podcast marketing. Analizza le performance di Parliamo di Marketing (PDM).
-CONTESTO: podcast italiano marketing, 150+ episodi, target professionisti 35-55 anni, 5-6 min/episodio, lunedì 6:30, retention 60-75% (top 10-15% italiani).
-${dati?`DATI:\n${dati}\n`:'Nessun dato fornito — analisi generale per ottimizzare un podcast marketing italiano.\n'}
+CONTESTO: podcast italiano marketing, 150+ episodi, target professionisti 35-55 anni, 5-6 min, lunedì 6:30, retention 60-75% (top 10-15% italiani).
+${dati?`DATI:\n${dati}\n`:'Nessun dato — analisi generale per ottimizzare PDM.\n'}
 ${scTesto?`SCRIPT ATTUALE:\n${scTesto}\n`:''}
 PRODUCE:
 1. COSA FUNZIONA (3-5 punti con dati se disponibili)
 2. COSA OTTIMIZZARE (3-5 punti concreti e azionabili)
 3. EPISODI CONSIGLIATI (3 idee con titolo e angolo narrativo)
-4. AZIONE PRIORITARIA QUESTA SETTIMANA (1 cosa da fare subito, con istruzioni pratiche)
-Tono: da consulente esperto a collega. Diretto, concreto, niente ovvietà.`;
+4. AZIONE PRIORITARIA QUESTA SETTIMANA (1 cosa sola, istruzioni pratiche)
+Tono: consulente esperto a collega. Diretto, concreto, niente ovvietà.`;
     try{await callC(p,c=>{out.an+=c;el.textContent=out.an;});}
     catch(e){showErr(`Errore analisi: ${e.message}`);}
     bar.style.width='100%';
