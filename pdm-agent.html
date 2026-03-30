@@ -35,7 +35,7 @@ textarea:focus,input:focus{border-color:var(--oro);}
 .sd.d{background:var(--verde);}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .tabs{display:flex;border-bottom:1px solid #2a2a2a;margin-bottom:1.2rem;flex-wrap:wrap;}
-.tab{background:transparent;border:none;color:var(--grigio);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.72rem;letter-spacing:.08em;padding:.6rem .9rem;text-transform:uppercase;transition:all .2s;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab{background:transparent;border:none;color:var(--grigio);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.68rem;letter-spacing:.08em;padding:.6rem .8rem;text-transform:uppercase;transition:all .2s;border-bottom:2px solid transparent;margin-bottom:-1px;}
 .tab:hover{color:var(--bianco);}
 .tab.active{color:var(--oro);border-bottom-color:var(--oro);}
 .tc{display:none;}
@@ -78,7 +78,7 @@ textarea:focus,input:focus{border-color:var(--oro);}
 
     <div class="pt mt">Link Spotify episodio <span>— per il player nella newsletter</span></div>
     <input type="text" id="spotify-url" placeholder="https://open.spotify.com/episode/...">
-    <div class="hint">Incolla il link Spotify dell'episodio. L'agente genera il blocco HTML del player.</div>
+    <div class="hint">Incolla il link Spotify dell'episodio.</div>
 
     <div class="pt mt">Link della settimana <span>— per la newsletter (opzionale)</span></div>
     <textarea id="links" placeholder="Incolla 2-3 URL interessanti, uno per riga." style="min-height:65px"></textarea>
@@ -91,8 +91,10 @@ textarea:focus,input:focus{border-color:var(--oro);}
       <button class="btn" onclick="setFmt('instagram')" id="btn-instagram"><span class="bl">Instagram</span>3 varianti</button>
       <button class="btn" onclick="setFmt('newsletter')" id="btn-newsletter"><span class="bl">Newsletter</span>formato ibrido PDM</button>
       <button class="btn" onclick="setFmt('podcast')" id="btn-podcast"><span class="bl">Podcast</span>Spotify + YouTube</button>
+      <button class="btn" onclick="setFmt('nota')" id="btn-nota"><span class="bl">Nota Substack</span>frase epica OMT</button>
       <button class="btn" onclick="setFmt('player')" id="btn-player"><span class="bl">Player HTML</span>blocco newsletter</button>
       <button class="btn" onclick="setFmt('analisi')" id="btn-analisi"><span class="bl">Analisi</span>performance + consigli</button>
+      <button class="btn" onclick="setFmt('tutti')" id="btn-tutti"><span class="bl">Tutto</span>genera tutti i formati</button>
       <button class="btn btn-gen" onclick="genera()" id="btn-genera" disabled>Genera</button>
     </div>
     <div class="sb"><div class="sd" id="sd"></div><span id="st">Seleziona un formato e premi Genera</span></div>
@@ -105,7 +107,8 @@ textarea:focus,input:focus{border-color:var(--oro);}
       <button class="tab" data-tab="instagram" onclick="swTab('instagram')">Instagram</button>
       <button class="tab" data-tab="newsletter" onclick="swTab('newsletter')">Newsletter</button>
       <button class="tab" data-tab="podcast" onclick="swTab('podcast')">Podcast</button>
-      <button class="tab" data-tab="player" onclick="swTab('player')">Player HTML</button>
+      <button class="tab" data-tab="nota" onclick="swTab('nota')">Nota</button>
+      <button class="tab" data-tab="player" onclick="swTab('player')">Player</button>
       <button class="tab" data-tab="analisi" onclick="swTab('analisi')">Analisi</button>
     </div>
 
@@ -116,8 +119,7 @@ textarea:focus,input:focus{border-color:var(--oro);}
         <div class="vd" onclick="showV('ln',2)" id="ln-d2"></div>
         <span class="vl" id="ln-lbl">Variante 1/3</span>
       </div>
-      <div class="ob">
-        <div class="lb" id="ln-bar"></div>
+      <div class="ob"><div class="lb" id="ln-bar"></div>
         <div class="ot" id="ln-0" style="display:none"></div>
         <div class="ot" id="ln-1" style="display:none"></div>
         <div class="ot" id="ln-2" style="display:none"></div>
@@ -133,8 +135,7 @@ textarea:focus,input:focus{border-color:var(--oro);}
         <div class="vd" onclick="showV('ig',2)" id="ig-d2"></div>
         <span class="vl" id="ig-lbl">Variante 1/3</span>
       </div>
-      <div class="ob">
-        <div class="lb" id="ig-bar"></div>
+      <div class="ob"><div class="lb" id="ig-bar"></div>
         <div class="ot" id="ig-0" style="display:none"></div>
         <div class="ot" id="ig-1" style="display:none"></div>
         <div class="ot" id="ig-2" style="display:none"></div>
@@ -144,8 +145,7 @@ textarea:focus,input:focus{border-color:var(--oro);}
     </div>
 
     <div class="tc" id="tab-newsletter">
-      <div class="ob">
-        <div class="lb" id="nl-bar"></div>
+      <div class="ob"><div class="lb" id="nl-bar"></div>
         <div class="ot" id="nl-out" style="display:none"></div>
         <div class="op" id="nl-ph">La newsletter apparirà qui</div>
       </div>
@@ -153,26 +153,31 @@ textarea:focus,input:focus{border-color:var(--oro);}
     </div>
 
     <div class="tc" id="tab-podcast">
-      <div class="ob">
-        <div class="lb" id="pc-bar"></div>
+      <div class="ob"><div class="lb" id="pc-bar"></div>
         <div class="ot" id="pc-out" style="display:none"></div>
         <div class="op" id="pc-ph">Caption Spotify e YouTube appariranno qui</div>
       </div>
       <div class="oa"><button class="bc" onclick="cp('pc')">Copia</button></div>
     </div>
 
+    <div class="tc" id="tab-nota">
+      <div class="ob"><div class="lb" id="nt-bar"></div>
+        <div class="ot" id="nt-out" style="display:none"></div>
+        <div class="op" id="nt-ph">La nota Substack con la frase epica apparirà qui — copiala e incollala su Substack Notes</div>
+      </div>
+      <div class="oa"><button class="bc" onclick="cp('nt')">Copia</button></div>
+    </div>
+
     <div class="tc" id="tab-player">
-      <div class="ob">
-        <div class="lb" id="pl-bar"></div>
+      <div class="ob"><div class="lb" id="pl-bar"></div>
         <div class="ot" id="pl-out" style="display:none"></div>
-        <div class="op" id="pl-ph">Il blocco HTML del player Spotify apparirà qui — copialo e incollalo in Substack o nel sito</div>
+        <div class="op" id="pl-ph">Il blocco HTML del player Spotify apparirà qui</div>
       </div>
       <div class="oa"><button class="bc" onclick="cp('pl')">Copia HTML</button></div>
     </div>
 
     <div class="tc" id="tab-analisi">
-      <div class="ob">
-        <div class="lb" id="an-bar"></div>
+      <div class="ob"><div class="lb" id="an-bar"></div>
         <div class="ot" id="an-out" style="display:none"></div>
         <div class="op" id="an-ph">L'analisi delle performance apparirà qui</div>
       </div>
@@ -184,7 +189,7 @@ textarea:focus,input:focus{border-color:var(--oro);}
 </div>
 
 <script>
-let fmt=null, cv={ln:0,ig:0}, out={ln:['','',''],ig:['','',''],nl:'',pc:'',pl:'',an:''};
+let fmt=null, cv={ln:0,ig:0}, out={ln:['','',''],ig:['','',''],nl:'',pc:'',nt:'',pl:'',an:''};
 
 function salvaKey(){
   const k=document.getElementById('apikey').value.trim();
@@ -231,20 +236,18 @@ function showV(p,i){
   document.getElementById(`${p}-lbl`).textContent=`Variante ${i+1}/3`;
 }
 function cp(p){
-  let t=p==='nl'?out.nl:p==='pc'?out.pc:p==='pl'?out.pl:p==='an'?out.an:out[p][cv[p]];
+  let t=p==='nl'?out.nl:p==='pc'?out.pc:p==='nt'?out.nt:p==='pl'?out.pl:p==='an'?out.an:out[p][cv[p]];
   if(!t)return;
   navigator.clipboard.writeText(t).then(()=>{
-    const b=event.target;b.textContent='Copiato!';b.classList.add('cp');
-    setTimeout(()=>{b.textContent=p==='pl'?'Copia HTML':'Copia';b.classList.remove('cp');},2000);
+    const b=event.target;
+    const orig=b.textContent;
+    b.textContent='Copiato!';b.classList.add('cp');
+    setTimeout(()=>{b.textContent=orig;b.classList.remove('cp');},2000);
   });
 }
 function showErr(m){document.getElementById('err').innerHTML=`<div class="em">${m}</div>`;}
 function clearErr(){document.getElementById('err').innerHTML='';}
-
-function estraiSpotifyId(url){
-  const m=url.match(/episode\/([a-zA-Z0-9]+)/);
-  return m?m[1]:null;
-}
+function estraiSpotifyId(url){const m=url.match(/episode\/([a-zA-Z0-9]+)/);return m?m[1]:null;}
 
 const SYS=`Sei l'assistente di produzione del podcast italiano "Parliamo di Marketing" (PDM), condotto da Babi (Barbara Lorenzini), professoressa di marketing e consulente.
 VOCE E STILE: tono caldo, diretto, colloquiale ma autorevole. Esempi concreti. Mai "nel mondo frenetico di oggi". Frasi brevi. Prima persona per esperienze dirette. Pubblico: professionisti italiani 35-55 anni.
@@ -280,7 +283,7 @@ async function genera(){
   clearErr();
   document.getElementById('btn-genera').disabled=true;
   setSt('g','Generazione in corso...');
-  const ff=fmt==='tutti'?['linkedin','instagram','newsletter','podcast','player']:[fmt];
+  const ff=fmt==='tutti'?['linkedin','instagram','newsletter','podcast','nota']:[fmt];
   for(const f of ff)await genF(f,sc);
   setSt('d','Completato.');
   document.getElementById('btn-genera').disabled=false;
@@ -353,10 +356,10 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
     }
     const spotUrl=document.getElementById('spotify-url').value.trim();
     const spotId=estraiSpotifyId(spotUrl);
-    const spotNote=spotId?`\n\nNOTA: alla fine della newsletter aggiungi questa riga: "[INSERISCI QUI IL PLAYER SPOTIFY — usa il tab Player HTML per generare il codice]"`:'';
     bar.style.width='50%';setSt('g','Scrivo la newsletter...');
     const secLink=links.length>0?`7. DALLA RETE QUESTA SETTIMANA: per ogni link: titolo in voce PDM + riga commento Babi + link originale.`:'';
     const lInfo=links.length>0?`\n\nLINK:\n${lCtx}`:'';
+    const spotNote=spotId?`\n\nNOTA FINALE: aggiungi una riga "[Ascolta l'episodio su Spotify →]" con placeholder link.`:'';
     const p=`Dall'episodio PDM sotto, scrivi la newsletter ibrida PDM.
 STRUTTURA:
 1. OGGETTO: max 50 car, incuriosisce senza spoilerare
@@ -397,29 +400,50 @@ SCRIPT:\n${sc}\nSolo il testo.`;
     catch(e){showErr(`Errore podcast: ${e.message}`);}
     bar.style.width='100%';
 
+  }else if(f==='nota'){
+    swTab('nota');
+    const bar=document.getElementById('nt-bar'),el=document.getElementById('nt-out');
+    document.getElementById('nt-ph').style.display='none';
+    el.style.display='block';el.textContent='';out.nt='';bar.style.width='30%';
+    setSt('g','Estraggo la frase epica...');
+    const spotUrl=document.getElementById('spotify-url').value.trim();
+    const spotLink=spotUrl?`\n\n→ Ascolta l'episodio completo: ${spotUrl}`:'';
+    const p=`Dall'episodio PDM sotto, crea UNA nota per Substack Notes.
+
+ISTRUZIONI:
+1. Estrai la frase più potente e memorabile dell'episodio — quella dell'OMT (One More Thing), l'aforisma finale. Deve essere la frase che rimane in testa.
+2. Mettila in apertura da sola, su una riga, come citazione visiva. Può avere le virgolette.
+3. Aggiungi 3-4 righe di contesto minimo — non spiegare tutto l'episodio, solo abbastanza da far venire voglia di ascoltarlo.
+4. Chiudi con una domanda aperta alla community di Substack — breve, genuina, che invita a rispondere.
+5. Aggiungi in fondo: "Nuovo episodio di Parliamo di Marketing — ogni lunedì." ${spotLink}
+
+REGOLE:
+- Tono di Babi: caldo, diretto, personale
+- Max 200 parole totali
+- Niente hashtag (siamo su Substack, non Instagram)
+- Niente emoji in eccesso — al massimo 1-2 se aggiungono ritmo
+- La frase epica deve essere quella vera dell'OMT, non inventata
+
+SCRIPT:\n${sc}\nSolo la nota Substack.`;
+    try{await callC(p,c=>{out.nt+=c;el.textContent=out.nt;});}
+    catch(e){showErr(`Errore nota: ${e.message}`);}
+    bar.style.width='100%';
+
   }else if(f==='player'){
     swTab('player');
     const bar=document.getElementById('pl-bar'),el=document.getElementById('pl-out');
     document.getElementById('pl-ph').style.display='none';
     el.style.display='block';bar.style.width='50%';
     setSt('g','Genero player HTML...');
-
     const spotUrl=document.getElementById('spotify-url').value.trim();
     const spotId=estraiSpotifyId(spotUrl);
-
     if(!spotId){
-      el.textContent='';
-      out.pl='';
-      showErr('Inserisci il link Spotify dell\'episodio nel campo apposito.');
-      bar.style.width='0%';
-      setSt('idle','');
-      document.getElementById('btn-genera').disabled=false;
-      return;
+      el.textContent='';out.pl='';
+      showErr('Inserisci il link Spotify nel campo apposito.');
+      bar.style.width='0%';setSt('idle','');
+      document.getElementById('btn-genera').disabled=false;return;
     }
-
-    const titoloEp=document.getElementById('script').value.trim().split('\n').find(r=>r.trim().length>10)||'Nuovo episodio PDM';
-
-    const playerHTML=`<!-- Player Spotify PDM — copia e incolla in Substack o WordPress -->
+    const playerHTML=`<!-- Player Spotify PDM -->
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:24px auto;">
   <tr>
     <td>
@@ -430,18 +454,16 @@ SCRIPT:\n${sc}\nSolo il testo.`;
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td width="56" valign="middle" style="padding-right:16px;">
-                    <div style="width:56px;height:56px;background:#1DB954;border-radius:8px;display:flex;align-items:center;justify-content:center;">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.434-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.469-.077-.336.132-.67.469-.746 3.809-.871 7.077-.496 9.713 1.115.293.18.386.563.207.856zm1.223-2.722c-.226.367-.706.482-1.072.257-2.687-1.652-6.785-2.131-9.965-1.166-.413.127-.848-.106-.974-.517-.127-.412.105-.848.517-.974 3.632-1.102 8.147-.568 11.237 1.328.366.226.48.707.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71c-.493.15-1.016-.129-1.166-.623-.148-.495.13-1.016.624-1.166 3.532-1.073 9.404-.866 13.115 1.337.445.264.590.838.327 1.282-.262.445-.838.59-1.283.327z"/>
-                      </svg>
+                    <div style="width:56px;height:56px;background:#1DB954;border-radius:8px;text-align:center;line-height:56px;">
+                      <span style="color:white;font-size:24px;">▶</span>
                     </div>
                   </td>
                   <td valign="middle">
                     <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:#1DB954;text-transform:uppercase;letter-spacing:1px;font-weight:bold;">Parliamo di Marketing</p>
-                    <p style="margin:4px 0 0;font-family:Arial,sans-serif;font-size:15px;color:#ffffff;font-weight:bold;line-height:1.3;">▶ Ascolta l'episodio</p>
+                    <p style="margin:4px 0 0;font-family:Arial,sans-serif;font-size:15px;color:#ffffff;font-weight:bold;">Ascolta l'episodio</p>
                   </td>
                   <td valign="middle" align="right">
-                    <div style="background:#1DB954;border-radius:20px;padding:8px 16px;">
+                    <div style="background:#1DB954;border-radius:20px;padding:8px 16px;display:inline-block;">
                       <span style="font-family:Arial,sans-serif;font-size:13px;color:#000000;font-weight:bold;">Spotify</span>
                     </div>
                   </td>
@@ -453,13 +475,9 @@ SCRIPT:\n${sc}\nSolo il testo.`;
       </a>
     </td>
   </tr>
-</table>
-<!-- Fine player Spotify PDM -->`;
-
-    out.pl=playerHTML;
-    el.textContent=playerHTML;
-    bar.style.width='100%';
-    setSt('d','Player HTML generato — clicca Copia HTML.');
+</table>`;
+    out.pl=playerHTML;el.textContent=playerHTML;
+    bar.style.width='100%';setSt('d','Player HTML pronto — clicca Copia HTML.');
 
   }else if(f==='analisi'){
     swTab('analisi');
