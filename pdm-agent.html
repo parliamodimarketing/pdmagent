@@ -435,40 +435,42 @@ SCRIPT:\n${sc}\nSolo la nota Substack.`;
     document.getElementById('ig2-ph').style.display='none';
     el.style.display='block';el.textContent='';out.ig2='';bar.style.width='30%';
     setSt('g','Genero testo infografica...');
-    const p=`Dall'episodio PDM sotto, genera il testo strutturato per un'infografica verticale da scaricare — sarà allegata alla newsletter come PDF e creata su Canva.
+    const p=`Sei Babi (Barbara Lorenzini), conduttrice di Parliamo di Marketing. Hai letto questo episodio. Ora devi creare il testo per un'infografica verticale da allegare alla newsletter.
+
+NON estrarre frasi dallo script. TRASFORMA le idee principali in frasi originali, potenti, da aforisma — come se le stessi scrivendo su un muro.
 
 STRUTTURA OBBLIGATORIA:
 
 TITOLO PRINCIPALE
-(max 8 parole, provocatorio, il tema dell'episodio)
+(max 7 parole, provocatorio e diretto — deve colpire da solo)
 
 SOTTOTITOLO
-(max 12 parole, chiarisce il tema)
+(max 10 parole, completa il titolo con il tema concreto)
 
-PUNTO 1 — [titolo breve in maiuscolo]
-(1-2 righe di testo, concreto e diretto)
+PUNTO 1 — [TITOLO IN MAIUSCOLO, max 5 parole]
+Frase epica originale: sintetica, visiva, che rimane in testa. NON riassumere — sentenziate. Max 15 parole.
 
-PUNTO 2 — [titolo breve in maiuscolo]
-(1-2 righe di testo)
+PUNTO 2 — [TITOLO IN MAIUSCOLO, max 5 parole]
+Frase epica originale. Max 15 parole.
 
-PUNTO 3 — [titolo breve in maiuscolo]
-(1-2 righe di testo)
+PUNTO 3 — [TITOLO IN MAIUSCOLO, max 5 parole]
+Frase epica originale. Max 15 parole.
 
-PUNTO 4 — [titolo breve in maiuscolo]
-(1-2 righe di testo)
+PUNTO 4 — [TITOLO IN MAIUSCOLO, max 5 parole]
+Frase epica originale. Max 15 parole.
 
 FRASE FINALE
-(la frase epica dell'OMT — quella che rimane in testa, massimo 15 parole)
+La sentenza dell'episodio — quella che vale da sola, senza contesto. Max 12 parole. Stile Beppe Stigliano: aforisma puro.
 
 FOOTER
 Parliamo di Marketing · pdmktg.substack.com · ogni lunedì
 
-REGOLE:
-- Linguaggio sintetico, ogni parola conta
-- Niente verbi passivi, niente gerundi inutili
-- I titoli dei punti devono essere impattanti da soli
-- Il testo sotto ogni punto espande, non ripete il titolo
-- Voce PDM: diretta, autorevole, mai accademica
+REGOLE ASSOLUTE:
+- Ogni frase deve reggere da sola su uno sfondo verde scuro
+- Niente gerundi, niente verbi passivi, niente subordinate lunghe
+- Voce attiva, presente indicativo, soggetto chiaro
+- Niente citazioni dallo script — idee rielaborate in forma originale
+- Tono PDM: autorevole, diretto, mai accademico, mai consolatorio
 
 SCRIPT:\n${sc}\nSolo il testo strutturato per l'infografica.`;
     try{await callC(p,c=>{out.ig2+=c;el.textContent=out.ig2;});}
