@@ -80,8 +80,14 @@ textarea:focus,input:focus{border-color:var(--oro);}
     <div class="pt mt">Link Spotify episodio <span>— per player e caption</span></div>
     <input type="text" id="spotify-url" placeholder="https://open.spotify.com/episode/...">
 
-    <div class="pt mt">Link della settimana <span>— per la newsletter (opzionale)</span></div>
-    <textarea id="links" placeholder="Incolla 2-3 URL interessanti, uno per riga." style="min-height:65px"></textarea>
+    <div class="pt mt">Tema newsletter <span>— angolo aggiuntivo rispetto al podcast (opzionale)</span></div>
+    <textarea id="tema-newsletter" placeholder="Es: Havaianas — come un brand sottovalutato sale al Top Tier senza cambiare il prodotto." style="min-height:55px"></textarea>
+
+    <div class="pt mt">Link sul tema <span>— 2 articoli coerenti con l'episodio (opzionale)</span></div>
+    <textarea id="links-tema" placeholder="Incolla 2 URL sul tema del podcast, uno per riga." style="min-height:55px"></textarea>
+
+    <div class="pt mt">Link in hype <span>— 2 articoli trending nel marketing questa settimana (opzionale)</span></div>
+    <textarea id="links-hype" placeholder="Incolla 2 URL trending questa settimana, uno per riga." style="min-height:55px"></textarea>
 
     <div class="pt mt">Dati performance <span>— per l'analisi (opzionale)</span></div>
     <textarea id="performance" placeholder="Incolla dati Spotify: ascolti, retention, follower..." style="min-height:65px"></textarea>
@@ -351,41 +357,76 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
     swTab('newsletter');
     const bar=document.getElementById('nl-bar'),el=document.getElementById('nl-out');
     document.getElementById('nl-ph').style.display='none';
-    el.style.display='block';el.textContent='';out.nl='';bar.style.width='20%';
-    const linksRaw=document.getElementById('links').value.trim();
-    const links=linksRaw?linksRaw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http')).slice(0,3):[];
-    let lCtx='';
-    if(links.length>0){
-      setSt('g','Leggo i link...');bar.style.width='35%';
-      for(const u of links){
-        try{
-          const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,messages:[{role:'user',content:`Descrivi in 2 righe questo link di marketing in italiano: ${u}. Solo la descrizione.`}]})});
-          const d=await r.json();lCtx+=`- ${u}\n  ${d.content?.[0]?.text||'non accessibile'}\n`;
-        }catch{lCtx+=`- ${u}\n  (non accessibile)\n`;}
-      }
-    }
+    el.style.display='block';el.textContent='';out.nl='';bar.style.width='10%';
+
+    const temaNl=document.getElementById('tema-newsletter').value.trim();
+    const linksTemaRaw=document.getElementById('links-tema').value.trim();
+    const linksHypeRaw=document.getElementById('links-hype').value.trim();
     const spotUrl=document.getElementById('spotify-url').value.trim();
     const spotId=estraiSpotifyId(spotUrl);
+
+    const parsaLink=(raw,max)=>raw?raw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http')).slice(0,max):[];
+    const linksTema=parsaLink(linksTemaRaw,2);
+    const linksHype=parsaLink(linksHypeRaw,2);
+
+    let ctxTema='',ctxHype='';
+    const tuttiLink=[...linksTema,...linksHype];
+    if(tuttiLink.length>0){
+      setSt('g','Leggo i link...');bar.style.width='30%';
+      const leggi=async(url)=>{
+        try{
+          const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:120,messages:[{role:'user',content:`Descrivi in 1-2 righe questo articolo di marketing in italiano: ${url}. Solo la descrizione.`}]})});
+          const d=await r.json();return d.content?.[0]?.text||'non accessibile';
+        }catch{return 'non accessibile';}
+      };
+      for(const u of linksTema){const d=await leggi(u);ctxTema+=`- ${u}\n  ${d}\n`;}
+      for(const u of linksHype){const d=await leggi(u);ctxHype+=`- ${u}\n  ${d}\n`;}
+    }
+
     bar.style.width='50%';setSt('g','Scrivo la newsletter...');
-    const secLink=links.length>0?`7. DALLA RETE QUESTA SETTIMANA: per ogni link: titolo in voce PDM + riga commento Babi + link originale.`:'';
-    const lInfo=links.length>0?`\n\nLINK:\n${lCtx}`:'';
-    const spotNote=spotId?`\n\nNOTA FINALE: aggiungi una riga "[Ascolta l'episodio su Spotify →]" con placeholder link.`:'';
-    const p=`Dall'episodio PDM sotto, scrivi la newsletter ibrida PDM.
-STRUTTURA:
-1. OGGETTO: max 50 car, incuriosisce senza spoilerare
-2. PREHEADER: completa l'oggetto
-3. INTRO PERSONALE (100-120 parole): Babi in prima persona, tono diaristico
-4. EPISODIO: titolo + 2-3 righe teaser senza svelare conclusione
-5. LEZIONE IN UNA RIGA: aforisma memorabile
-6. CTA: [LINK EPISODIO]
-${secLink}
-REGOLE: tono caldo personale, max 450 parole, no emoji.
-SCRIPT:\n${sc}${lInfo}${spotNote}\nNewsletter completa con sezioni numerate.`;
+
+    const blkTema=temaNl?`\nTEMA NEWSLETTER (angolo aggiuntivo): "${temaNl}"\nBabi lo introduce nell'intro con una riflessione originale collegata al podcast ma con un angolo diverso.`:'';
+    const blkLinkTema=linksTema.length>0?`\n\nLETTURE SUL TEMA:\n${ctxTema}Per ogni link: titolo evocativo in voce PDM + 1-2 righe commento personale Babi + link.`:'';
+    const blkLinkHype=linksHype.length>0?`\n\nQUESTO GIRA NEL MARKETING QUESTA SETTIMANA:\n${ctxHype}Per ogni link: titolo evocativo in voce PDM + 1-2 righe commento personale Babi + link.`:'';
+    const spotNote=spotId?'Aggiungi dopo il teaser episodio: "[Ascolta su Spotify →]"':'';
+
+    const introHint=temaNl
+      ?`Parte dal tema aggiuntivo ("${temaNl}") — una riflessione originale che collega al podcast della settimana aprendo un angolo diverso. Non è un riassunto dell'episodio.`
+      :`Introduce il tema del podcast con una riflessione personale diretta.`;
+
+    const p=`Sei Babi (Barbara Lorenzini), conduttrice di Parliamo di Marketing. Scrivi la newsletter del giovedì PDM.
+
+STRUTTURA OBBLIGATORIA:
+
+1. OGGETTO EMAIL
+(max 50 caratteri, incuriosisce senza spoilerare)
+
+2. PREHEADER
+(max 80 caratteri, completa l'oggetto)
+
+3. INTRO PERSONALE (120-150 parole)
+Babi in prima persona, tono diaristico. ${introHint}
+
+4. EPISODIO DELLA SETTIMANA
+Titolo + 2-3 righe teaser senza svelare conclusione. ${spotNote}
+
+5. LA LEZIONE IN UNA RIGA
+Aforisma memorabile dall'analisi dell'episodio.
+${blkLinkTema}
+${blkLinkHype}
+
+REGOLE: tono caldo personale, mai istituzionale, max 500 parole, no emoji.
+
+SCRIPT PODCAST:
+${sc}${blkTema}
+
+Scrivi la newsletter completa con le sezioni numerate.`;
+
     try{await callC(p,c=>{out.nl+=c;el.textContent=out.nl;});}
     catch(e){showErr(`Errore newsletter: ${e.message}`);}
     bar.style.width='100%';
 
-  }else if(f==='podcast'){
+    }else if(f==='podcast'){
     swTab('podcast');
     const bar=document.getElementById('pc-bar'),el=document.getElementById('pc-out');
     document.getElementById('pc-ph').style.display='none';
