@@ -425,38 +425,58 @@ CONTESTO NARRATIVO:
 - Il PODCAST racconta: Allbirds (crolla da 4 miliardi a 39 milioni) e Abercrombie (rinasce dal fondo). Tema: perdere e ritrovare la rilevanza.
 ${temaNl?`- Il TEMA NEWSLETTER è il caso "${temaNl}" — appare SOLO nell'intro come contrappunto. Mai dopo.`:''}
 
-STRUTTURA — RISPETTA L'ORDINE E LE ISTRUZIONI:
+FORMATO: niente numeri, niente titoli numerati. Usa separatori visivi (---) tra le sezioni. È una lettera, non un documento.
 
-1. OGGETTO EMAIL
-(max 50 caratteri — incuriosisce, non spoilera)
+STRUTTURA — RISPETTA L'ORDINE:
 
-2. PREHEADER
-(max 80 caratteri — completa l'oggetto)
+OGGETTO EMAIL
+(max 50 caratteri — incuriosisce, non spoilera — non appare nel corpo della mail)
 
-3. INTRO PERSONALE (120-150 parole)
-Inizia con "Ciao," — tono da lettera personale, non da pubblicazione.
+PREHEADER
+(max 80 caratteri — completa l'oggetto — non appare nel corpo della mail)
+
+---
+
+Ciao,
+
+[INTRO PERSONALE — 120-150 parole]
 ${introHint}
 
-4. EPISODIO DELLA SETTIMANA
-Titolo forte + 2-3 righe teaser su Allbirds e Abercrombie senza svelare la conclusione. ${spotNote}
+---
 
-5. LA LEZIONE IN UNA RIGA
-Usa ESATTAMENTE questa frase — non cambiarla:
-"La rilevanza è l'unica cosa che conta.
+🎧 Questa settimana su Parliamo di Marketing
+
+[Titolo forte dell'episodio in grassetto]
+[2-3 righe teaser su Allbirds e Abercrombie senza svelare la conclusione] ${spotNote}
+
+---
+
+**La frase da ricordare**
+
+La rilevanza è l'unica cosa che conta.
 Non è quanto sei bravo. Non è quanto vali.
-È se, nel momento in cui qualcuno deve scegliere, tu sei ancora la risposta."
+È se, nel momento in cui qualcuno deve scegliere, tu sei ancora la risposta.
 
-${linksTema.length>0?`6. LETTURE SUL TEMA
+---
+
+${linksTema.length>0?`6. ---
+
+Letture sul tema
+
 ${ctxTema}
-Per ogni link: crea un titolo evocativo in voce PDM. Se c'è un COMMENTO DI BABI, usalo come corpo del commento — è la sua opinione personale, non toccarla. Se non c'è commento, scrivi 1-2 righe di commento in voce Babi che aggiungono un'idea originale. Chiudi con il link originale.`:''}
+Per ogni link: **titolo evocativo in grassetto**. COMMENTO DI BABI se presente: usalo esattamente, è la sua opinione. Altrimenti: 1-2 righe in voce Babi che aggiungono un'idea originale. Chiudi con → link.`:''}
 
-${linksHype.length>0?`7. QUESTO GIRA NEL MARKETING QUESTA SETTIMANA
+${linksHype.length>0?`7. ---
+
+Questo gira nel marketing
+
 ${ctxHype}
-Stessa logica: titolo evocativo + commento personale di Babi (usa quello fornito se presente) + link.`:''}
+Stessa logica: **titolo evocativo in grassetto** + commento di Babi (usa quello fornito) + → link.`:''}
 
-8. CHIUSURA
-"A giovedì.\
-Barbara"
+8. ---
+
+A giovedì.
+Barbara
 REGOLE ASSOLUTE:
 - Tono da lettera personale — mai istituzionale
 - Il tema newsletter appare SOLO nell'intro
