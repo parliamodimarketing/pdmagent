@@ -370,8 +370,7 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
     const linksHype=parsaLink(linksHypeRaw,2);
 
     let ctxTema='',ctxHype='';
-    const tuttiLink=[...linksTema,...linksHype];
-    if(tuttiLink.length>0){
+    if(linksTema.length>0||linksHype.length>0){
       setSt('g','Leggo i link...');bar.style.width='30%';
       const leggi=async(url)=>{
         try{
@@ -384,41 +383,48 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
     }
 
     bar.style.width='50%';setSt('g','Scrivo la newsletter...');
-
-    const blkTema=temaNl?`\nTEMA NEWSLETTER (angolo aggiuntivo): "${temaNl}"\nBabi lo introduce nell'intro con una riflessione originale collegata al podcast ma con un angolo diverso.`:'';
-    const blkLinkTema=linksTema.length>0?`\n\nLETTURE SUL TEMA:\n${ctxTema}Per ogni link: titolo evocativo in voce PDM + 1-2 righe commento personale Babi + link.`:'';
-    const blkLinkHype=linksHype.length>0?`\n\nQUESTO GIRA NEL MARKETING QUESTA SETTIMANA:\n${ctxHype}Per ogni link: titolo evocativo in voce PDM + 1-2 righe commento personale Babi + link.`:'';
-    const spotNote=spotId?'Aggiungi dopo il teaser episodio: "[Ascolta su Spotify →]"':'';
-
-    const introHint=temaNl
-      ?`Parte dal tema aggiuntivo ("${temaNl}") — una riflessione originale che collega al podcast della settimana aprendo un angolo diverso. Non è un riassunto dell'episodio.`
-      :`Introduce il tema del podcast con una riflessione personale diretta.`;
+    const spotNote=spotId?'Aggiungi dopo il teaser: "[Ascolta su Spotify →]"':'';
 
     const p=`Sei Babi (Barbara Lorenzini), conduttrice di Parliamo di Marketing. Scrivi la newsletter del giovedì PDM.
 
-STRUTTURA OBBLIGATORIA:
+CONTESTO NARRATIVO — LEGGI CON ATTENZIONE:
+- Il PODCAST della settimana racconta: Allbirds (brand che perde rilevanza e crolla) e Abercrombie (brand dato per morto che rinasce). Tema: cosa succede quando la rilevanza percepita si sgancia dalla realtà.
+${temaNl?`- Il TEMA NEWSLETTER è un caso SEPARATO e DIVERSO: "${temaNl}". È il CONTRARIO di Allbirds — un brand che costruisce rilevanza percepita senza cambiare il prodotto. Va usato SOLO nell'intro personale come apertura, poi Babi lancia al podcast. NON deve apparire nelle sezioni link o episodio.`:''}
+
+STRUTTURA OBBLIGATORIA — RISPETTA L'ORDINE:
 
 1. OGGETTO EMAIL
-(max 50 caratteri, incuriosisce senza spoilerare)
+(max 50 caratteri, incuriosisce senza spoilerare — può riferirsi al tema newsletter O al podcast)
 
 2. PREHEADER
 (max 80 caratteri, completa l'oggetto)
 
 3. INTRO PERSONALE (120-150 parole)
-Babi in prima persona, tono diaristico. ${introHint}
+${temaNl
+  ?`Babi in prima persona. Parte da una scena concreta legata a "${temaNl}" — qualcosa di vissuto, diaristico. Sviluppa il contrasto: questo brand ha costruito rilevanza senza cambiare il prodotto. Poi con una frase di raccordo lancia al podcast: "È l'opposto di quello che vi racconto questa settimana" o simile. IMPORTANTE: Havaianas/tema newsletter appare SOLO qui, mai dopo.`
+  :`Babi in prima persona, tono diaristico, introduce il tema del podcast con una riflessione personale.`}
 
 4. EPISODIO DELLA SETTIMANA
-Titolo + 2-3 righe teaser senza svelare conclusione. ${spotNote}
+Titolo forte + 2-3 righe di teaser su Allbirds e Abercrombie, senza svelare la conclusione. ${spotNote}
 
 5. LA LEZIONE IN UNA RIGA
-Aforisma memorabile dall'analisi dell'episodio.
-${blkLinkTema}
-${blkLinkHype}
+Aforisma memorabile dall'episodio del podcast. Max 20 parole.
 
-REGOLE: tono caldo personale, mai istituzionale, max 500 parole, no emoji.
+${linksTema.length>0?`6. LETTURE SUL TEMA
+${ctxTema}Per ogni link: titolo evocativo in voce PDM + 1-2 righe commento personale di Babi che aggiunge un'idea originale + link originale. NON citare Havaianas qui.`:''}
+
+${linksHype.length>0?`7. QUESTO GIRA NEL MARKETING QUESTA SETTIMANA
+${ctxHype}Per ogni link: titolo evocativo in voce PDM + 1-2 righe commento personale di Babi + link originale.`:''}
+
+REGOLE ASSOLUTE:
+- Il tema newsletter (${temaNl||'nessuno'}) appare SOLO nell'intro — mai nelle altre sezioni
+- Tono caldo, personale, mai istituzionale
+- Max 500 parole totali
+- No emoji
+- Ogni sezione separata e numerata
 
 SCRIPT PODCAST:
-${sc}${blkTema}
+${sc}
 
 Scrivi la newsletter completa con le sezioni numerate.`;
 
