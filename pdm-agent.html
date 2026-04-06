@@ -365,10 +365,6 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
     const spotUrl=document.getElementById('spotify-url').value.trim();
     const spotId=estraiSpotifyId(spotUrl);
 
-    // Parsing link con commento opzionale
-    // Formato supportato:
-    // https://url.com
-    // Il mio commento: testo libero
     const parseLinksConCommento=(raw,max)=>{
       if(!raw) return [];
       const righe=raw.split('\n').map(l=>l.trim()).filter(l=>l);
@@ -389,8 +385,6 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
     const linksTema=parseLinksConCommento(linksTemaRaw,2);
     const linksHype=parseLinksConCommento(linksHypeRaw,2);
 
-    // Leggi descrizioni solo per link senza commento
-    let ctxTema='',ctxHype='';
     const tuttiDaLeggere=[...linksTema,...linksHype].filter(l=>!l.commento);
     if(tuttiDaLeggere.length>0){
       setSt('g','Leggo i link...');bar.style.width='30%';
@@ -404,13 +398,9 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
       for(const l of linksHype){if(!l.commento){l.commento=await leggi(l.url);}}
     }
 
-    // Costruisci contesto per il prompt
-    const buildCtx=(links,tipo)=>links.length>0
-      ?links.map(l=>`- ${l.url}\n  ${l.commento?`COMMENTO DI BABI: "${l.commento}"`:''}`).join('\n')
-      :'';
-
-    ctxTema=buildCtx(linksTema,'tema');
-    ctxHype=buildCtx(linksHype,'hype');
+    const buildCtx=(links)=>links.map(l=>`- ${l.url}\n  ${l.commento?`COMMENTO DI BABI (usalo letteralmente): "${l.commento}"`:''}`).join('\n');
+    const ctxTema=buildCtx(linksTema);
+    const ctxHype=buildCtx(linksHype);
 
     bar.style.width='50%';setSt('g','Scrivo la newsletter...');
     const spotNote=spotId?'Aggiungi dopo il teaser: "[Ascolta su Spotify →]"':'';
@@ -419,68 +409,52 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
       ?`Parte da una scena concreta e personale legata a "${temaNl}". Sviluppa il contrasto: questo brand ha costruito rilevanza senza cambiare il prodotto. Poi con una frase di raccordo naturale lancia al podcast. IMPORTANTE: il tema newsletter appare SOLO qui, mai nelle altre sezioni.`
       :`Introduce il tema del podcast con una riflessione personale e diretta.`;
 
-    const p=`Sei Babi (Barbara Lorenzini), conduttrice di Parliamo di Marketing. Scrivi la newsletter del giovedì in formato lettera personale — come Mel Robbins, ma in voce italiana autorevole.
+    // Numero sezione dinamico
+    let numSez=6;
+    const sezTema=linksTema.length>0?`${numSez++}. LETTURE SUL TEMA\n${ctxTema}\nPer ogni link: titolo evocativo in voce PDM + commento personale di Babi (usa quello fornito se presente, altrimenti scrivi 1-2 righe originali in voce sua) + link originale.`:'';
+    const sezHype=linksHype.length>0?`${numSez}. QUESTO GIRA NEL MARKETING QUESTA SETTIMANA\n${ctxHype}\nStessa logica: titolo evocativo + commento di Babi + link.`:'';
+
+    const p=`Sei Babi (Barbara Lorenzini), conduttrice di Parliamo di Marketing. Scrivi la newsletter del giovedì in formato lettera personale.
 
 CONTESTO NARRATIVO:
 - Il PODCAST racconta: Allbirds (crolla da 4 miliardi a 39 milioni) e Abercrombie (rinasce dal fondo). Tema: perdere e ritrovare la rilevanza.
-${temaNl?`- Il TEMA NEWSLETTER è il caso "${temaNl}" — appare SOLO nell'intro come contrappunto. Mai dopo.`:''}
+${temaNl?`- Il TEMA NEWSLETTER è "${temaNl}" — appare SOLO nell'intro come contrappunto al podcast. MAI nelle altre sezioni.`:''}
 
-FORMATO: niente numeri, niente titoli numerati. Usa separatori visivi (---) tra le sezioni. È una lettera, non un documento.
+STRUTTURA OBBLIGATORIA — numerata, senza separatori:
 
-STRUTTURA — RISPETTA L'ORDINE:
+1. OGGETTO EMAIL
+(max 50 caratteri — incuriosisce, non spoilera)
 
-OGGETTO EMAIL
-(max 50 caratteri — incuriosisce, non spoilera — non appare nel corpo della mail)
+2. PREHEADER
+(max 80 caratteri — completa l'oggetto)
 
-PREHEADER
-(max 80 caratteri — completa l'oggetto — non appare nel corpo della mail)
-
----
-
-Ciao,
-
-[INTRO PERSONALE — 120-150 parole]
+3. INTRO PERSONALE (120-150 parole)
+Inizia con "Ciao," — tono da lettera personale.
 ${introHint}
 
----
+4. EPISODIO DELLA SETTIMANA
+Titolo in grassetto + 2-3 righe teaser su Allbirds e Abercrombie senza svelare la conclusione. ${spotNote}
 
-🎧 Questa settimana su Parliamo di Marketing
-
-[Titolo forte dell'episodio in grassetto]
-[2-3 righe teaser su Allbirds e Abercrombie senza svelare la conclusione] ${spotNote}
-
----
-
-**La frase da ricordare**
-
-La rilevanza è l'unica cosa che conta.
+5. LA FRASE DA RICORDARE
+Questa sezione ha un titolo fisso: "La frase da ricordare"
+Dentro, scrivi ESATTAMENTE questa frase — non cambiarla, non abbreviarla:
+"La rilevanza è l'unica cosa che conta.
 Non è quanto sei bravo. Non è quanto vali.
-È se, nel momento in cui qualcuno deve scegliere, tu sei ancora la risposta.
+È se, nel momento in cui qualcuno deve scegliere, tu sei ancora la risposta."
 
----
+${sezTema}
 
-${linksTema.length>0?`6. ---
+${sezHype}
 
-Letture sul tema
+Ultima sezione — CHIUSURA:
+"A giovedì.
+Barbara"
 
-${ctxTema}
-Per ogni link: **titolo evocativo in grassetto**. COMMENTO DI BABI se presente: usalo esattamente, è la sua opinione. Altrimenti: 1-2 righe in voce Babi che aggiungono un'idea originale. Chiudi con → link.`:''}
-
-${linksHype.length>0?`7. ---
-
-Questo gira nel marketing
-
-${ctxHype}
-Stessa logica: **titolo evocativo in grassetto** + commento di Babi (usa quello fornito) + → link.`:''}
-
-8. ---
-
-A giovedì.
-Barbara
 REGOLE ASSOLUTE:
-- Tono da lettera personale — mai istituzionale
+- Struttura numerata — niente separatori con trattini
 - Il tema newsletter appare SOLO nell'intro
-- La frase in sezione 5 va copiata letteralmente
+- La sezione 5 "La frase da ricordare" va riprodotta letteralmente
+- Tono da lettera personale, mai istituzionale
 - Max 500 parole totali
 - No emoji
 
