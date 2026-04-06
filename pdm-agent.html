@@ -365,63 +365,104 @@ SCRIPT:\n${sc}\nSolo la caption con hashtag.`;
     const spotUrl=document.getElementById('spotify-url').value.trim();
     const spotId=estraiSpotifyId(spotUrl);
 
-    const parsaLink=(raw,max)=>raw?raw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http')).slice(0,max):[];
-    const linksTema=parsaLink(linksTemaRaw,2);
-    const linksHype=parsaLink(linksHypeRaw,2);
+    // Parsing link con commento opzionale
+    // Formato supportato:
+    // https://url.com
+    // Il mio commento: testo libero
+    const parseLinksConCommento=(raw,max)=>{
+      if(!raw) return [];
+      const righe=raw.split('\n').map(l=>l.trim()).filter(l=>l);
+      const risultati=[];
+      let corrente=null;
+      for(const r of righe){
+        if(r.startsWith('http')){
+          if(corrente) risultati.push(corrente);
+          corrente={url:r,commento:''};
+        } else if(corrente && r.length>0){
+          corrente.commento+=(corrente.commento?' ':'')+r;
+        }
+      }
+      if(corrente) risultati.push(corrente);
+      return risultati.slice(0,max);
+    };
 
+    const linksTema=parseLinksConCommento(linksTemaRaw,2);
+    const linksHype=parseLinksConCommento(linksHypeRaw,2);
+
+    // Leggi descrizioni solo per link senza commento
     let ctxTema='',ctxHype='';
-    if(linksTema.length>0||linksHype.length>0){
+    const tuttiDaLeggere=[...linksTema,...linksHype].filter(l=>!l.commento);
+    if(tuttiDaLeggere.length>0){
       setSt('g','Leggo i link...');bar.style.width='30%';
       const leggi=async(url)=>{
         try{
           const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:120,messages:[{role:'user',content:`Descrivi in 1-2 righe questo articolo di marketing in italiano: ${url}. Solo la descrizione.`}]})});
-          const d=await r.json();return d.content?.[0]?.text||'non accessibile';
-        }catch{return 'non accessibile';}
+          const d=await r.json();return d.content?.[0]?.text||'';
+        }catch{return '';}
       };
-      for(const u of linksTema){const d=await leggi(u);ctxTema+=`- ${u}\n  ${d}\n`;}
-      for(const u of linksHype){const d=await leggi(u);ctxHype+=`- ${u}\n  ${d}\n`;}
+      for(const l of linksTema){if(!l.commento){l.commento=await leggi(l.url);}}
+      for(const l of linksHype){if(!l.commento){l.commento=await leggi(l.url);}}
     }
+
+    // Costruisci contesto per il prompt
+    const buildCtx=(links,tipo)=>links.length>0
+      ?links.map(l=>`- ${l.url}\n  ${l.commento?`COMMENTO DI BABI: "${l.commento}"`:''}`).join('\n')
+      :'';
+
+    ctxTema=buildCtx(linksTema,'tema');
+    ctxHype=buildCtx(linksHype,'hype');
 
     bar.style.width='50%';setSt('g','Scrivo la newsletter...');
     const spotNote=spotId?'Aggiungi dopo il teaser: "[Ascolta su Spotify →]"':'';
 
-    const p=`Sei Babi (Barbara Lorenzini), conduttrice di Parliamo di Marketing. Scrivi la newsletter del giovedì PDM.
+    const introHint=temaNl
+      ?`Parte da una scena concreta e personale legata a "${temaNl}". Sviluppa il contrasto: questo brand ha costruito rilevanza senza cambiare il prodotto. Poi con una frase di raccordo naturale lancia al podcast. IMPORTANTE: il tema newsletter appare SOLO qui, mai nelle altre sezioni.`
+      :`Introduce il tema del podcast con una riflessione personale e diretta.`;
 
-CONTESTO NARRATIVO — LEGGI CON ATTENZIONE:
-- Il PODCAST della settimana racconta: Allbirds (brand che perde rilevanza e crolla) e Abercrombie (brand dato per morto che rinasce). Tema: cosa succede quando la rilevanza percepita si sgancia dalla realtà.
-${temaNl?`- Il TEMA NEWSLETTER è un caso SEPARATO e DIVERSO: "${temaNl}". È il CONTRARIO di Allbirds — un brand che costruisce rilevanza percepita senza cambiare il prodotto. Va usato SOLO nell'intro personale come apertura, poi Babi lancia al podcast. NON deve apparire nelle sezioni link o episodio.`:''}
+    const p=`Sei Babi (Barbara Lorenzini), conduttrice di Parliamo di Marketing. Scrivi la newsletter del giovedì in formato lettera personale — come Mel Robbins, ma in voce italiana autorevole.
 
-STRUTTURA OBBLIGATORIA — RISPETTA L'ORDINE:
+CONTESTO NARRATIVO:
+- Il PODCAST racconta: Allbirds (crolla da 4 miliardi a 39 milioni) e Abercrombie (rinasce dal fondo). Tema: perdere e ritrovare la rilevanza.
+${temaNl?`- Il TEMA NEWSLETTER è il caso "${temaNl}" — appare SOLO nell'intro come contrappunto. Mai dopo.`:''}
+
+STRUTTURA — RISPETTA L'ORDINE E LE ISTRUZIONI:
 
 1. OGGETTO EMAIL
-(max 50 caratteri, incuriosisce senza spoilerare — può riferirsi al tema newsletter O al podcast)
+(max 50 caratteri — incuriosisce, non spoilera)
 
 2. PREHEADER
-(max 80 caratteri, completa l'oggetto)
+(max 80 caratteri — completa l'oggetto)
 
 3. INTRO PERSONALE (120-150 parole)
-${temaNl
-  ?`Babi in prima persona. Parte da una scena concreta legata a "${temaNl}" — qualcosa di vissuto, diaristico. Sviluppa il contrasto: questo brand ha costruito rilevanza senza cambiare il prodotto. Poi con una frase di raccordo lancia al podcast: "È l'opposto di quello che vi racconto questa settimana" o simile. IMPORTANTE: Havaianas/tema newsletter appare SOLO qui, mai dopo.`
-  :`Babi in prima persona, tono diaristico, introduce il tema del podcast con una riflessione personale.`}
+Inizia con "Ciao," — tono da lettera personale, non da pubblicazione.
+${introHint}
 
 4. EPISODIO DELLA SETTIMANA
-Titolo forte + 2-3 righe di teaser su Allbirds e Abercrombie, senza svelare la conclusione. ${spotNote}
+Titolo forte + 2-3 righe teaser su Allbirds e Abercrombie senza svelare la conclusione. ${spotNote}
 
 5. LA LEZIONE IN UNA RIGA
-Aforisma memorabile dall'episodio del podcast. Max 20 parole.
+Usa ESATTAMENTE questa frase — non cambiarla:
+"La rilevanza è l'unica cosa che conta.
+Non è quanto sei bravo. Non è quanto vali.
+È se, nel momento in cui qualcuno deve scegliere, tu sei ancora la risposta."
 
 ${linksTema.length>0?`6. LETTURE SUL TEMA
-${ctxTema}Per ogni link: titolo evocativo in voce PDM + 1-2 righe commento personale di Babi che aggiunge un'idea originale + link originale. NON citare Havaianas qui.`:''}
+${ctxTema}
+Per ogni link: crea un titolo evocativo in voce PDM. Se c'è un COMMENTO DI BABI, usalo come corpo del commento — è la sua opinione personale, non toccarla. Se non c'è commento, scrivi 1-2 righe di commento in voce Babi che aggiungono un'idea originale. Chiudi con il link originale.`:''}
 
 ${linksHype.length>0?`7. QUESTO GIRA NEL MARKETING QUESTA SETTIMANA
-${ctxHype}Per ogni link: titolo evocativo in voce PDM + 1-2 righe commento personale di Babi + link originale.`:''}
+${ctxHype}
+Stessa logica: titolo evocativo + commento personale di Babi (usa quello fornito se presente) + link.`:''}
 
+8. CHIUSURA
+"A giovedì.\
+Barbara"
 REGOLE ASSOLUTE:
-- Il tema newsletter (${temaNl||'nessuno'}) appare SOLO nell'intro — mai nelle altre sezioni
-- Tono caldo, personale, mai istituzionale
+- Tono da lettera personale — mai istituzionale
+- Il tema newsletter appare SOLO nell'intro
+- La frase in sezione 5 va copiata letteralmente
 - Max 500 parole totali
 - No emoji
-- Ogni sezione separata e numerata
 
 SCRIPT PODCAST:
 ${sc}
