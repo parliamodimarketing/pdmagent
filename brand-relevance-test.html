@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dove sei? Il test di rilevanza del tuo brand · Parliamo di Marketing</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+:root{
+  --verde:#115e30;--verde-l:#1a7a3f;--oro:#c8a96e;--oro-l:#e8d5b0;
+  --bianco:#f5f2ec;--nero:#0f0f0f;--grigio:#6b6560;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--nero);color:var(--bianco);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+.bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 80% 50% at 15% 0%,#1a3a25 0%,transparent 55%),
+             radial-gradient(ellipse 50% 40% at 85% 100%,#1a2a1a 0%,transparent 50%),var(--nero);}
+.wrap{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:3rem 1.5rem 6rem;}
+
+/* HEADER */
+.logo{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--oro);
+  margin-bottom:2.5rem;display:flex;align-items:center;gap:.8rem;}
+.logo::before{content:'';width:28px;height:1px;background:var(--oro);}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,3.2rem);
+  font-weight:600;line-height:1.1;letter-spacing:-.02em;margin-bottom:1rem;}
+h1 em{font-style:italic;color:var(--oro);}
+.intro{font-size:.93rem;line-height:1.8;color:#c0bdb5;margin-bottom:1rem;}
+.regole{border-left:2px solid var(--verde);padding:.9rem 1.2rem;
+  background:rgba(17,94,48,.12);border-radius:0 4px 4px 0;
+  font-size:.82rem;line-height:1.65;color:#a8a4a0;margin-bottom:2.5rem;}
+.regole strong{color:var(--bianco);font-weight:500;}
+
+/* PROGRESS */
+.progress-wrap{position:sticky;top:.8rem;z-index:10;
+  background:rgba(15,15,15,.9);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.07);border-radius:5px;
+  padding:.7rem 1.1rem;margin-bottom:2rem;
+  display:flex;align-items:center;gap:1rem;}
+.prog-bg{flex:1;height:2px;background:#2a2a2a;border-radius:2px;}
+.prog-fill{height:2px;background:var(--oro);border-radius:2px;width:0%;transition:width .3s;}
+.prog-txt{font-size:.68rem;color:var(--grigio);white-space:nowrap;letter-spacing:.05em;}
+
+/* SEZIONE */
+.sezione{margin-bottom:2rem;}
+.sez-label{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--verde-l);margin-bottom:.3rem;display:flex;align-items:center;gap:.6rem;}
+.sez-label::after{content:'';flex:1;height:1px;background:rgba(17,94,48,.35);}
+.sez-titolo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;margin-bottom:.25rem;}
+.sez-desc{font-size:.8rem;color:var(--grigio);line-height:1.5;margin-bottom:1.2rem;}
+
+/* DOMANDA */
+.domanda{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);
+  border-radius:5px;padding:1.1rem 1.3rem;margin-bottom:.7rem;transition:border-color .2s,background .2s;}
+.domanda:hover{border-color:rgba(200,169,110,.18);background:rgba(255,255,255,.04);}
+.dom-testo{font-size:.88rem;line-height:1.6;margin-bottom:.85rem;color:var(--bianco);}
+.dom-num{display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;background:var(--verde);border-radius:50%;
+  font-size:.6rem;font-weight:500;margin-right:.45rem;flex-shrink:0;vertical-align:middle;}
+.risposte{display:flex;gap:.5rem;flex-wrap:wrap;}
+.risposta{flex:1;min-width:70px;background:transparent;border:1px solid #252525;border-radius:3px;
+  color:#706b65;cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:.7rem;font-weight:400;letter-spacing:.04em;
+  padding:.5rem .5rem;text-align:center;transition:all .15s;}
+.risposta:hover{border-color:var(--oro);color:var(--oro);}
+.risposta.si.sel{background:rgba(17,94,48,.25);border-color:var(--verde-l);color:#7dd99a;}
+.risposta.parz.sel{background:rgba(200,169,110,.15);border-color:var(--oro);color:var(--oro);}
+.risposta.no.sel{background:rgba(192,57,43,.12);border-color:#c0392b77;color:#d97070;}
+.risposta.nonso.sel{background:rgba(107,101,96,.18);border-color:#6b656077;color:#a0a0a0;}
+
+/* CTA */
+.cta-wrap{margin-top:2.5rem;text-align:center;}
+.btn-vai{background:var(--oro);border:none;border-radius:4px;color:var(--nero);
+  cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;padding:.95rem 2.2rem;transition:all .2s;}
+.btn-vai:hover:not(:disabled){background:var(--oro-l);transform:translateY(-1px);}
+.btn-vai:disabled{opacity:.35;cursor:not-allowed;}
+.cta-hint{font-size:.72rem;color:var(--grigio);margin-top:.7rem;}
+
+/* RISULTATO */
+#risultato{display:none;margin-top:2.5rem;animation:fadeUp .5s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+.ris-header{text-align:center;margin-bottom:2rem;}
+.badge{display:inline-block;padding:.45rem 1.2rem;border-radius:30px;
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;margin-bottom:.8rem;}
+.badge-top{background:rgba(17,94,48,.28);border:1px solid var(--verde-l);color:#7dd99a;}
+.badge-sotto{background:rgba(30,60,180,.2);border:1px solid #4a7ae0;color:#7aaaf0;}
+.badge-rischio{background:rgba(180,120,0,.2);border:1px solid #c87800;color:#e0a030;}
+.badge-invis{background:rgba(90,90,90,.2);border:1px solid #555;color:#aaa;}
+
+.punteggi{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.5rem;}
+.punt-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:5px;padding:1.1rem;text-align:center;}
+.punt-label{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grigio);margin-bottom:.3rem;}
+.punt-val{font-family:'Playfair Display',serif;font-size:2rem;font-weight:600;color:var(--oro);}
+.punt-max{font-size:.7rem;color:var(--grigio);}
+
+/* MATRICE */
+.matrice{display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:5px;overflow:hidden;margin:1.2rem 0 .4rem;}
+.m{padding:.9rem 1rem;font-size:.7rem;line-height:1.4;opacity:.2;transition:opacity .4s;}
+.m.on{opacity:1;}
+.m-label{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:.2rem;}
+.m-tl{background:rgba(180,120,0,.22);border:1px solid rgba(180,120,0,.28);}
+.m-tr{background:rgba(17,94,48,.3);border:1px solid rgba(17,94,48,.38);}
+.m-bl{background:rgba(70,70,70,.22);border:1px solid rgba(70,70,70,.28);}
+.m-br{background:rgba(30,60,180,.2);border:1px solid rgba(30,60,180,.3);}
+.mat-assi{display:flex;justify-content:space-between;font-size:.58rem;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--grigio);}
+.mat-asse-y{font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--grigio);text-align:center;margin-bottom:.3rem;}
+
+/* DIAGNOSI */
+.diagnosi-box{background:rgba(255,255,255,.025);border:1px solid rgba(200,169,110,.15);
+  border-radius:5px;padding:1.6rem;margin-top:1.2rem;}
+.diagnosi-titolo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;
+  margin-bottom:.8rem;line-height:1.3;}
+.diagnosi-testo{font-size:.87rem;line-height:1.85;color:#d0ccc4;}
+.diagnosi-testo p{margin-bottom:.8rem;}
+.diagnosi-testo p:last-child{margin-bottom:0;}
+.diagnosi-tag{display:inline-block;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.25rem .7rem;border-radius:3px;margin-bottom:.8rem;font-weight:500;}
+.tag-rischio{background:rgba(180,80,0,.2);border:1px solid rgba(180,80,0,.3);color:#e09040;}
+.tag-priorita{background:rgba(17,94,48,.2);border:1px solid rgba(17,94,48,.3);color:#7dd99a;}
+
+/* LIBRO */
+.libro-box{margin-top:2rem;border:1px solid rgba(200,169,110,.3);
+  border-radius:6px;padding:1.8rem;background:rgba(200,169,110,.06);text-align:center;}
+.libro-eyebrow{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--oro);margin-bottom:.6rem;}
+.libro-titolo{font-family:'Playfair Display',serif;font-size:1.25rem;
+  font-weight:600;line-height:1.3;margin-bottom:.4rem;}
+.libro-autore{font-size:.78rem;color:var(--grigio);margin-bottom:1.1rem;}
+.libro-testo{font-size:.85rem;line-height:1.75;color:#b8b4ac;margin-bottom:1.4rem;text-align:left;}
+.btn-libro{display:inline-block;background:var(--oro);border:none;border-radius:4px;
+  color:var(--nero);cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:.8rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  padding:.85rem 2rem;text-decoration:none;transition:all .2s;}
+.btn-libro:hover{background:var(--oro-l);transform:translateY(-1px);}
+
+.pdm-footer{text-align:center;margin-top:2.5rem;font-size:.65rem;
+  letter-spacing:.1em;color:#3a3a3a;text-transform:uppercase;}
+
+@media(max-width:480px){
+  .risposte{flex-direction:column;}
+  .risposta{min-width:unset;}
+  .punteggi{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+
+  <div class="logo">Parliamo di Marketing</div>
+
+  <h1>Il tuo brand è davvero <em>rilevante</em>?</h1>
+  <p class="intro">Non è quanto sei bravo. Non è quanto vali. È se, quando arriva il momento della scelta, sei ancora la risposta. Scopri dove si colloca il tuo brand — prima che lo scoprano i tuoi concorrenti.</p>
+
+  <div class="regole">
+    <strong>10 domande. 3 minuti.</strong> Rispondi con onestà — per come stanno le cose, non per come vorreste che fossero.<br>
+    <strong>Sì</strong> = 4 punti &nbsp;·&nbsp; <strong>Parzialmente</strong> = 2 punti &nbsp;·&nbsp; <strong>No</strong> = 0 punti &nbsp;·&nbsp; <strong>Non so</strong> = 0 punti
+  </div>
+
+  <div class="progress-wrap">
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog-txt" id="prog-txt">0 / 10</div>
+  </div>
+
+  <!-- ASSE 1 -->
+  <div class="sezione">
+    <div class="sez-label">Asse 1</div>
+    <div class="sez-titolo">Rilevanza Potenziale — La sostanza</div>
+    <div class="sez-desc">Hai un valore reale che i clienti non possono trovare altrove?</div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">1</span>I tuoi clienti hanno un motivo <em>concreto</em> per scegliere te e non un concorrente?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(0,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(0,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(0,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(0,'nonso',this)">Non so</button>
+      </div>
+    </div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">2</span>Se tolgo logo, nome e colori, i clienti riconoscono il tuo modo unico di risolvere i loro problemi?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(1,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(1,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(1,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(1,'nonso',this)">Non so</button>
+      </div>
+    </div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">3</span>La tua ultima novità ha risolto un problema reale del cliente — non solo una tua esigenza interna?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(2,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(2,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(2,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(2,'nonso',this)">Non so</button>
+      </div>
+    </div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">4</span>Se alzi i prezzi del 15%, i clienti restano — per il tuo valore, non per abitudine?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(3,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(3,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(3,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(3,'nonso',this)">Non so</button>
+      </div>
+    </div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">5</span>Puoi spiegare a un bambino di 8 anni perché sei diverso — senza usare le parole "qualità" o "innovazione"?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(4,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(4,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(4,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(4,'nonso',this)">Non so</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSE 2 -->
+  <div class="sezione">
+    <div class="sez-label">Asse 2</div>
+    <div class="sez-titolo">Rilevanza Percepita — La presenza</div>
+    <div class="sez-desc">Il mercato ti vede e ti associa al bisogno nel momento della scelta?</div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">6</span>Quando hanno il tuo bisogno, il tuo brand è tra i primi 3 nomi che vengono in mente — spontaneamente?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(5,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(5,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(5,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(5,'nonso',this)">Non so</button>
+      </div>
+    </div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">7</span>Se chiedi a 10 clienti "cosa rappresenta il tuo brand?", ottieni 10 risposte simili?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(6,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(6,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(6,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(6,'nonso',this)">Non so</button>
+      </div>
+    </div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">8</span>Il tuo nome esce spontaneamente quando qualcuno chiede consigli nella tua categoria?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(7,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(7,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(7,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(7,'nonso',this)">Non so</button>
+      </div>
+    </div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">9</span>Sei presente esattamente dove e quando decidono — nel negozio, online, sui social giusti?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(8,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(8,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(8,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(8,'nonso',this)">Non so</button>
+      </div>
+    </div>
+
+    <div class="domanda">
+      <div class="dom-testo"><span class="dom-num">10</span>Stai dicendo qualcosa rilevante per la vita di oggi — o usi messaggi scritti 5 anni fa?</div>
+      <div class="risposte">
+        <button class="risposta si" onclick="rispondi(9,'si',this)">Sì</button>
+        <button class="risposta parz" onclick="rispondi(9,'parz',this)">Parzialmente</button>
+        <button class="risposta no" onclick="rispondi(9,'no',this)">No</button>
+        <button class="risposta nonso" onclick="rispondi(9,'nonso',this)">Non so</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="btn-vai" id="btn-analisi" disabled onclick="mostraRisultato()">Scopri dove sei →</button>
+    <div class="cta-hint" id="cta-hint">Rispondi a tutte e 10 le domande per vedere il risultato</div>
+  </div>
+
+  <!-- RISULTATO -->
+  <div id="risultato">
+
+    <div class="ris-header">
+      <div class="badge" id="badge-q"></div>
+      <h2 id="titolo-q" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:600;line-height:1.2;margin-bottom:.4rem;"></h2>
+      <p id="sotto-q" style="font-size:.85rem;color:var(--grigio);font-style:italic;"></p>
+    </div>
+
+    <div class="punteggi">
+      <div class="punt-box">
+        <div class="punt-label">Rilevanza Potenziale</div>
+        <div class="punt-val" id="val-pot">—</div>
+        <div class="punt-max">su 20 punti</div>
+      </div>
+      <div class="punt-box">
+        <div class="punt-label">Rilevanza Percepita</div>
+        <div class="punt-val" id="val-per">—</div>
+        <div class="punt-max">su 20 punti</div>
+      </div>
+    </div>
+
+    <div class="mat-asse-y">↑ Rilevanza Percepita</div>
+    <div class="matrice">
+      <div class="m m-tl" id="m-rischio">
+        <div class="m-label" style="color:#e0a030;">Rischio Mancata Promessa</div>
+        Percepita alta · Potenziale bassa
+      </div>
+      <div class="m m-tr" id="m-top">
+        <div class="m-label" style="color:#7dd99a;">Top Tier ★</div>
+        Percepita alta · Potenziale alta
+      </div>
+      <div class="m m-bl" id="m-invis">
+        <div class="m-label" style="color:#aaa;">Invisibile / Irrilevante</div>
+        Percepita bassa · Potenziale bassa
+      </div>
+      <div class="m m-br" id="m-sotto">
+        <div class="m-label" style="color:#7aaaf0;">Sottovalutato</div>
+        Percepita bassa · Potenziale alta
+      </div>
+    </div>
+    <div class="mat-assi">
+      <span>← Potenziale bassa</span>
+      <span>Potenziale alta →</span>
+    </div>
+
+    <div class="diagnosi-box" id="diagnosi-box"></div>
+
+    <div class="libro-box">
+      <div class="libro-eyebrow">Disponibile dal 1 maggio 2026</div>
+      <div class="libro-titolo">Brand Building nell'Era della Scelta Infinita</div>
+      <div class="libro-autore">Barbara Lorenzini</div>
+      <div class="libro-testo" id="libro-testo"></div>
+      <a href="https://www.parliamodimarketing.it" target="_blank" rel="noopener noreferrer" class="btn-libro">Scopri il libro →</a>
+    </div>
+
+    <div class="pdm-footer">Parliamo di Marketing · pdmktg.substack.com · ogni lunedì</div>
+  </div>
+
+</div>
+<script>
+const risposte = new Array(10).fill(null);
+
+const QUADRANTI = {
+  top: {
+    badge:'Top Tier ★', cls:'badge-top',
+    titolo:'Il tuo brand è rilevante.',
+    sotto:'Potenziale alta, percezione alta. Sei dove devi essere.',
+    cella:'m-top',
+    diagnosi:`
+      <div class="diagnosi-tag tag-priorita">Top Tier — Potenziale alta · Percepita alta</div>
+      <div class="diagnosi-titolo">Capacità reale + percezione chiara. Una posizione preziosa — ma fragile.</div>
+      <div class="diagnosi-testo">
+        <p>Hai costruito qualcosa che funziona: il mercato ti riconosce e ti sceglie per ragioni concrete. Non è fortuna, è il risultato di scelte coerenti nel tempo.</p>
+        <p><strong>Rischio:</strong> Obsolescenza culturale e incoerenza tra promessa e realtà. Il mercato cambia, i concorrenti imparano, le aspettative si alzano. La posizione Top Tier non si conserva — si difende attivamente.</p>
+        <p><strong>Priorità:</strong> Difendere l'esperienza cliente, monitorare i cambiamenti culturali, mantenere la coerenza. Brand building 60/40: 60% lungo termine, 40% attivazione.</p>
+      </div>`,
+    libro:'Sei nel quadrante che tutti vogliono raggiungere. Il libro ti mostra come i brand Top Tier mantengono la loro posizione senza perdere l\'identità che li ha portati fin qui — e come riconoscere i segnali di erosione prima che diventino una crisi.'
+  },
+  sotto: {
+    badge:'Sottovalutato', cls:'badge-sotto',
+    titolo:'Hai più valore di quanto il mercato ti riconosce.',
+    sotto:'Potenziale alta, percezione bassa. Il problema non è quello che sei — è come vieni visto.',
+    cella:'m-sotto',
+    diagnosi:`
+      <div class="diagnosi-tag tag-rischio">Sottovalutato — Potenziale alta · Percepita bassa</div>
+      <div class="diagnosi-titolo">Il valore c'è. La visibilità no.</div>
+      <div class="diagnosi-testo">
+        <p>Funzionalità, scalabilità, risultati reali: hai la sostanza. Ma non abbastanza clienti lo sanno, e quelli che hai sono meno fedeli di quanto meriterebbero. È l'effetto Double Jeopardy: pochi clienti, poca fedeltà, scarsa disponibilità mentale.</p>
+        <p><strong>Rischio:</strong> Rimanere bloccati per mancanza di visibilità. Un concorrente con meno valore ma più presenza ti supera nel momento che conta: la scelta.</p>
+        <p><strong>Priorità:</strong> Mental e physical availability. Investire in ESOV (Excess Share of Voice), presidiare i category entry points rilevanti — i momenti e le occasioni in cui il brand entra nella mente del cliente, coerenti con il problema reale che risolvi.</p>
+      </div>`,
+    libro:'Questo è il quadrante con il maggior potenziale di crescita — e il più frustrante da vivere. Il libro ti mostra le leve esatte per trasformare rilevanza potenziale in rilevanza percepita, senza stravolgere quello che sei.'
+  },
+  rischio: {
+    badge:'Rischio Mancata Promessa', cls:'badge-rischio',
+    titolo:'La tua comunicazione promette più di quanto consegni.',
+    sotto:'Percepita alta, potenziale bassa. Il gap tra immagine e realtà prima o poi si chiude — nel modo sbagliato.',
+    cella:'m-rischio',
+    diagnosi:`
+      <div class="diagnosi-tag tag-rischio">Rischio Mancata Promessa — Percepita alta · Potenziale bassa</div>
+      <div class="diagnosi-titolo">Molto percepito, poco sostenuto.</div>
+      <div class="diagnosi-testo">
+        <p>Hai una community fedele, una promessa seducente, forse una storia forte. Ma la sostanza non regge il confronto con le aspettative che hai generato. Funziona per pochi, non per molti.</p>
+        <p><strong>Rischio:</strong> Fragilità scalare ed erosione della fiducia. Quando provi a crescere, il gap tra promessa e realtà si allarga. I nuovi clienti arrivano con aspettative alte — e se ne vanno delusi.</p>
+        <p><strong>Priorità:</strong> Ampliare i category entry points o ripensare la proposta per diventare utile a più persone senza perdere l'identità. Prima di amplificare la voce, rafforzare la sostanza.</p>
+      </div>`,
+    libro:'Questo è il quadrante più pericoloso — e quello in cui è più difficile accorgersi di essere. Il libro ti aiuta a riconoscere il segnale prima che diventi un problema, e a riallineare promessa e realtà senza perdere quello che hai costruito.'
+  },
+  invis: {
+    badge:'Invisibile / Irrilevante', cls:'badge-invis',
+    titolo:'Il tuo brand non viene ancora scelto.',
+    sotto:'Percepita bassa, potenziale bassa. Hai due strade: costruire o pivotare.',
+    cella:'m-invis',
+    diagnosi:`
+      <div class="diagnosi-tag tag-rischio">Invisibile / Irrilevante — Percepita bassa · Potenziale bassa</div>
+      <div class="diagnosi-titolo">Senza identità distintiva, senza motivo forte per essere scelti.</div>
+      <div class="diagnosi-testo">
+        <p>Il brand non viene in mente, non viene cercato, non viene riconosciuto. Non è una condanna — è un punto di partenza. Molti dei brand più forti di oggi erano esattamente qui dieci anni fa.</p>
+        <p><strong>Rischio:</strong> Sprecare risorse in comunicazione senza prima rafforzare il valore reale. Più visibilità su una base fragile accelera il declino, non la crescita.</p>
+        <p><strong>Priorità:</strong> Lavorare su prodotto, offerta e posizionamento. Costruire una ragione d'essere concreta e riconoscibile — poi amplificare la voce. La sequenza conta più della velocità.</p>
+      </div>`,
+    libro:'Il problema non è sapere che sei qui — è sapere da dove iniziare. Costruire la sostanza o lavorare prima sulla visibilità? Rispondere nell\'ordine sbagliato brucia risorse e tempo. Il libro ti dà la sequenza giusta.'
+  }
+};
+
+function rispondi(idx, val, btn) {
+  risposte[idx] = val;
+  const dom = btn.closest('.domanda');
+  dom.querySelectorAll('.risposta').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  aggiornaProgress();
+}
+
+function aggiornaProgress() {
+  const n = risposte.filter(r => r !== null).length;
+  document.getElementById('prog-fill').style.width = (n/10*100) + '%';
+  document.getElementById('prog-txt').textContent = n + ' / 10';
+  const tutte = n === 10;
+  document.getElementById('btn-analisi').disabled = !tutte;
+  if (tutte) document.getElementById('cta-hint').textContent = 'Pronto. Clicca per scoprire dove si trova il tuo brand.';
+}
+
+function calcolaPunteggi() {
+  const p = v => v === 'si' ? 4 : v === 'parz' ? 2 : 0;
+  const pot = risposte.slice(0,5).reduce((s,r) => s + p(r), 0);
+  const per = risposte.slice(5,10).reduce((s,r) => s + p(r), 0);
+  return { pot, per };
+}
+
+function determinaQuadrante(pot, per) {
+  const s = 8;
+  if (pot >= s && per >= s) return 'top';
+  if (pot >= s && per < s) return 'sotto';
+  if (pot < s && per >= s) return 'rischio';
+  return 'invis';
+}
+
+function mostraRisultato() {
+  const { pot, per } = calcolaPunteggi();
+  const q = determinaQuadrante(pot, per);
+  const Q = QUADRANTI[q];
+
+  document.getElementById('val-pot').textContent = pot;
+  document.getElementById('val-per').textContent = per;
+
+  const badge = document.getElementById('badge-q');
+  badge.textContent = Q.badge;
+  badge.className = 'badge ' + Q.cls;
+  document.getElementById('titolo-q').textContent = Q.titolo;
+  document.getElementById('sotto-q').textContent = Q.sotto;
+
+  ['m-top','m-sotto','m-rischio','m-invis'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById(Q.cella).classList.add('on');
+
+  document.getElementById('diagnosi-box').innerHTML = Q.diagnosi;
+  document.getElementById('libro-testo').textContent = Q.libro;
+
+  document.getElementById('risultato').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('risultato').scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 100);
+}
+</script>
+</body>
+</html>
